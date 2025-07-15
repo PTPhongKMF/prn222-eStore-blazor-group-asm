@@ -22,13 +22,17 @@ public class Order
     [Column(TypeName = "money")]
     public decimal Freight { get; set; }
 
-    public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
+    public int OrderStatusId { get; set; }
 
-    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
+    public int PaymentStatusId { get; set; }
 
     public int? PaymentMethodId { get; set; }
 
     public virtual Member Member { get; set; } = null!;
+
+    public virtual OrderStatus OrderStatus { get; set; } = null!;
+
+    public virtual PaymentStatus PaymentStatus { get; set; } = null!;
 
     public virtual PaymentMethod? PaymentMethod { get; set; }
 

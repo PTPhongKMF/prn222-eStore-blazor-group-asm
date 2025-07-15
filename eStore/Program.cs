@@ -19,6 +19,12 @@ namespace eStore {
 
             var app = builder.Build();
 
+            // Create and Migrate DB
+            using (var scope = app.Services.CreateScope()) {
+                var db = scope.ServiceProvider.GetRequiredService<EStoreDatabaseContext>();
+                db.Database.Migrate(); 
+            }
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment()) {
                 app.UseExceptionHandler("/Error");

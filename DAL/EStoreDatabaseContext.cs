@@ -10,16 +10,25 @@ public class EStoreDatabaseContext : DbContext {
         : base(options) {
     }
 
-    public DbSet<Category> Categories { get; set; }
-    public DbSet<Member> Members { get; set; }
-    public DbSet<Order> Orders { get; set; }
-    public DbSet<OrderDetail> OrderDetails { get; set; }
-    public DbSet<Product> Products { get; set; }
-    public DbSet<Cart> Carts { get; set; }
-    public DbSet<PaymentMethod> PaymentMethods { get; set; }
+    public DbSet<Category> Category { get; set; }
+    public DbSet<Member> Member { get; set; }
+    public DbSet<Order> Order { get; set; }
+    public DbSet<OrderDetail> OrderDetail { get; set; }
+    public DbSet<Product> Product { get; set; }
+    public DbSet<Cart> Cart { get; set; }
+    public DbSet<PaymentMethod> PaymentMethod { get; set; }
+    public DbSet<OrderStatus> OrderStatus { get; set; }
+    public DbSet<PaymentStatus> PaymentStatus { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
+
+        // Configure composite keys
+        modelBuilder.Entity<Cart>()
+            .HasKey(c => new { c.MemberId, c.ProductId });
+
+        modelBuilder.Entity<OrderDetail>()
+            .HasKey(od => new { od.OrderId, od.ProductId });
 
         // Configure relationships
         modelBuilder.Entity<Order>()
@@ -27,6 +36,18 @@ public class EStoreDatabaseContext : DbContext {
             .WithMany(m => m.Orders)
             .HasForeignKey(o => o.MemberId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.OrderStatus)
+            .WithMany()
+            .HasForeignKey(o => o.OrderStatusId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.PaymentStatus)
+            .WithMany()
+            .HasForeignKey(o => o.PaymentStatusId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Order>()
             .HasOne(o => o.PaymentMethod)
@@ -43,7 +64,7 @@ public class EStoreDatabaseContext : DbContext {
             entity.HasOne(od => od.Product)
                 .WithMany(p => p.OrderDetails)
                 .HasForeignKey(od => od.ProductId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Product>()
@@ -63,5 +84,8 @@ public class EStoreDatabaseContext : DbContext {
                 .HasForeignKey(c => c.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        // Seed data
+        modelBuilder.Seed();
     }
 }

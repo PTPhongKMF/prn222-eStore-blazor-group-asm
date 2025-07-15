@@ -7,7 +7,7 @@ public class OrderDetail
 {
     public int OrderId { get; set; }
 
-    public int? ProductId { get; set; }
+    public int ProductId { get; set; }
 
     [Column(TypeName = "money")]
     public decimal UnitPrice { get; set; }
@@ -18,5 +18,5 @@ public class OrderDetail
 
     public virtual Order Order { get; set; } = null!;
 
-    public virtual Product? Product { get; set; }
+    public virtual Product Product { get; set; } = null!;
 }

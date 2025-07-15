@@ -1,12 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DAL.Entities;
+namespace BLL.DTOs;
 
-public class PaymentStatus
+public class PaymentStatusDTO
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int PaymentStatusId { get; set; }
 
     [Required]

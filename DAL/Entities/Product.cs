@@ -13,7 +13,7 @@ public class Product
     public int CategoryId { get; set; }
 
     [Required]
-    [MaxLength(40)]
+    [MaxLength(100)]
     public string ProductName { get; set; } = string.Empty;
 
     [Required]
@@ -24,6 +24,10 @@ public class Product
     public decimal UnitPrice { get; set; }
 
     public int UnitsInStock { get; set; }
+
+    public bool ActiveStatus { get; set; } = true;
+
+    public string? ImageUrl { get; set; }
 
     public virtual Category Category { get; set; } = null!;
 
