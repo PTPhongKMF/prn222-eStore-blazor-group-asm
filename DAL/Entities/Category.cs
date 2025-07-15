@@ -1,13 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DAL.Entities;
 
-public partial class Category
+public class Category
 {
+    [Key]   
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int CategoryId { get; set; }
 
-    public string? CategoryName { get; set; }
+    [Required]
+    [MaxLength(40)]
+    public string CategoryName { get; set; } = string.Empty;
 
     public string? Description { get; set; }
 

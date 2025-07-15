@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DAL.Entities;
+namespace BLL.DTOs;
 
-public class Product
+public class ProductDTO
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int ProductId { get; set; }
 
     public int CategoryId { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(40)]
@@ -20,12 +17,9 @@ public class Product
     [MaxLength(20)]
     public string Weight { get; set; } = string.Empty;
 
-    [Column(TypeName = "money")]
+    [Range(0, double.MaxValue)]
     public decimal UnitPrice { get; set; }
 
+    [Range(0, int.MaxValue)]
     public int UnitsInStock { get; set; }
-
-    public virtual Category Category { get; set; } = null!;
-
-    public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-}
+} 

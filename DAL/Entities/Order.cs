@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DAL.Entities;
 
-public partial class Order
+public class Order
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int OrderId { get; set; }
 
     public int MemberId { get; set; }
@@ -15,9 +19,18 @@ public partial class Order
 
     public DateTime? ShippedDate { get; set; }
 
-    public decimal? Freight { get; set; }
+    [Column(TypeName = "money")]
+    public decimal Freight { get; set; }
+
+    public OrderStatus OrderStatus { get; set; } = OrderStatus.Pending;
+
+    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
+
+    public int? PaymentMethodId { get; set; }
 
     public virtual Member Member { get; set; } = null!;
+
+    public virtual PaymentMethod? PaymentMethod { get; set; }
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 }
