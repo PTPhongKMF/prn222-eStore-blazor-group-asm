@@ -1,17 +1,46 @@
 ﻿@inherits LayoutComponentBase
+@using eStore.Components.Services
+@using BLL.DTOs
 
-<div class="page">
-    <NavMenu />
+@code {
+    [Inject]
+    private SessionService SessionService { get; set; } = null!;
 
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    public MemberDTO? UserSession { get; private set; }
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+    protected override void OnInitialized()
+    {
+        UserSession = SessionService.GetUserSession();
+    }
+
+    public void SetUserSession(MemberDTO? user)
+    {
+        UserSession = user;
+        if (user != null)
+        {
+            SessionService.SetUserSession(user);
+        }
+        else
+        {
+            SessionService.ClearUserSession();
+        }
+        StateHasChanged();
+    }
+}
+
+<CascadingValue Value="this">
+    <div class="page">
+        <NavMenu />
+        <main>
+            <div class="content">
+                @Body
+            </div>
+        </main>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+</CascadingValue>

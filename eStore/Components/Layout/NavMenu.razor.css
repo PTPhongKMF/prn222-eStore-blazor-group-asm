@@ -2,6 +2,10 @@
     background-color: #22c55e;
 }
 
+.navbar .container-fluid {
+    padding: 0;
+}
+
 /* Icon styles - Bootstrap doesn't provide these */
 .bi {
     display: inline-block;
@@ -9,10 +13,16 @@
     height: 1.25rem;
     margin-right: 0.75rem;
     background-size: cover;
+    vertical-align: middle;
+    margin-top: -0.2rem;
 }
 
 .bi-person-fill-nav-menu {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-person-fill' viewBox='0 0 16 16'%3E%3Cpath d='M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'/%3E%3C/svg%3E");
+}
+
+.bi-box-arrow-in-right {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-box-arrow-in-right' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z'/%3E%3Cpath fill-rule='evenodd' d='M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z'/%3E%3C/svg%3E");
 }
 
 /* Custom hover effect - Bootstrap doesn't provide this exact behavior */
@@ -25,14 +35,25 @@
     background-color: rgba(255,255,255,0.2);
 }
 
-/* Mobile menu background color */
-@media (max-width: 991.98px) {
-    .navbar-collapse {
-        position: absolute;
-        top: 3.5rem;
-        left: 0;
-        right: 0;
-        background-color: #22c55e;
-        padding: 1rem;
-    }
+::deep .btn-custom-yellow {
+    background-color: #E6B800;
+    border-color: #E6B800;
+    color: white;
+}
+
+::deep .btn-custom-yellow:hover {
+    background-color: transparent;
+    border-color: #E6B800;
+    color: white;
+}
+
+::deep .btn-outline-custom-yellow {
+    color: white;
+    border-color: #E6B800;
+}
+
+::deep .btn-outline-custom-yellow:hover {
+    background-color: #E6B800;
+    border-color: #E6B800;
+    color: white;
 }

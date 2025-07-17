@@ -1,0 +1,117 @@
+﻿@page "/login"
+
+@using eStore.Components.Models.Auth
+@using eStore.Components.Layout
+
+@code {
+    [Inject]
+    private MemberService MemberService { get; set; } = null!;
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
+    [CascadingParameter]
+    private MainLayout Layout { get; set; } = null!;
+
+    [SupplyParameterFromForm]
+    private LoginModel loginModel { get; set; } = new();
+
+    private string? errorMessage;
+    private bool isLoading;
+
+    protected override void OnInitialized()
+    {
+        if (Layout.UserSession != null)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            var memberDto = new MemberDTO
+            {
+                Email = loginModel.Email.Trim(),
+                Password = loginModel.Password
+            };
+
+            var result = await MemberService.Login(memberDto);
+
+            if (result == null)
+            {
+                errorMessage = "Email hoặc mật khẩu không chính xác";
+                return;
+            }
+
+            Layout.SetUserSession(result);
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Login Error - Message: {ex.Message}");
+            Console.WriteLine($"Login Error - Stack Trace: {ex.StackTrace}");
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Login Error - Inner Exception: {ex.InnerException.Message}");
+            }
+            errorMessage = "Đã xảy ra lỗi. Vui lòng thử lại sau.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
+<div class="login-page m-0 p-0">
+    <div class="login-card">
+        <h3 class="login-title text-center">Đăng nhập</h3>
+
+        <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin" FormName="login_form">
+            <DataAnnotationsValidator />
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">
+                    @errorMessage
+                </div>
+            }
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" class="form-control" @bind-Value="loginModel.Email" />
+                <ValidationMessage For="@(() => loginModel.Email)" class="text-danger small mt-1" />
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label">Mật khẩu</label>
+                <InputText type="password" id="password" class="form-control" @bind-Value="loginModel.Password" />
+                <ValidationMessage For="@(() => loginModel.Password)" class="text-danger small mt-1" />
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 mb-3" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-2">Đang xử lý...</span>
+                }
+                else
+                {
+                    <span>Đăng nhập</span>
+                }
+            </button>
+
+            <div class="text-center">
+                <p class="mb-0">
+                    Chưa có tài khoản?
+                    <a href="/register" class="text-success text-decoration-none">Đăng ký ngay!</a>
+                </p>
+            </div>
+        </EditForm>
+    </div>
+</div>

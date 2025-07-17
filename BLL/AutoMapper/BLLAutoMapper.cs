@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using BLL.AutoMapper.Profiles;
 
-namespace BLL.AutoMapper {
-    public class BLLAutoMapper {
-    }
+namespace BLL.AutoMapper;
+
+public class BLLAutoMapper {
 }

@@ -1,0 +1,22 @@
+﻿@page "/ex"
+
+<div class="container mt-5">
+    <h3>Simple Binding Test</h3>
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input @bind="name" @bind:event="oninput" class="form-control" />
+        <div class="mt-1">Current value: @name</div>
+    </div>
+
+    <button @onclick="HandleClick" class="btn btn-primary">Show Value</button>
+</div>
+
+@code {
+    private string name = "Initial Value";
+
+    private void HandleClick()
+    {
+        Console.WriteLine($"Current value: '{name}'");
+    }
+}

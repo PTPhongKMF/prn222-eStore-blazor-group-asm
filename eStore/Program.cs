@@ -2,6 +2,10 @@ using BLL.AutoMapper;
 using DAL;
 using eStore.Components;
 using Microsoft.EntityFrameworkCore;
+using BLL.Services;
+using DAL.Repositories;
+using Blazored.LocalStorage;
+using eStore.Components.Services;
 
 namespace eStore {
     public class Program {
@@ -12,10 +16,25 @@ namespace eStore {
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            // Add Session support
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromDays(7);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<SessionService>();
+
+            builder.Services.AddBlazoredLocalStorage();
+
             builder.Services.AddDbContext<EStoreDatabaseContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("eStoreDatabase")));
             builder.Services.AddScoped(typeof(EStoreDatabaseContext));
 
             builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(BLLAutoMapper).Assembly));
+            
+            builder.Services.AddScoped<MemberService>();
+            builder.Services.AddScoped<MemberRepository>();
 
             var app = builder.Build();
 
@@ -36,6 +55,9 @@ namespace eStore {
 
             app.UseStaticFiles();
             app.UseAntiforgery();
+
+            // Enable session
+            app.UseSession();
 
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
