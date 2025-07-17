@@ -1,5 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@using eStore.Components.Services
 @using BLL.DTOs
 
 @code {
@@ -24,7 +23,6 @@
         {
             SessionService.ClearUserSession();
         }
-        StateHasChanged();
     }
 }
 

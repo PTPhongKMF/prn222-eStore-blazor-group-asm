@@ -19,52 +19,41 @@
     private string? errorMessage;
     private bool isLoading;
 
-    protected override void OnInitialized()
-    {
-        if (Layout.UserSession != null)
-        {
+    protected override async Task OnInitializedAsync() {
+        if (Layout.UserSession != null) {
             NavigationManager.NavigateTo("/");
+            await Task.CompletedTask;
         }
     }
 
-    private async Task HandleLogin()
-    {
-        try
-        {
-            isLoading = true;
-            errorMessage = null;
+    private async Task HandleLogin() {
+        isLoading = true;
+        errorMessage = null;
 
-            var memberDto = new MemberDTO
-            {
+        try {
+            var memberDto = new MemberDTO {
                 Email = loginModel.Email.Trim(),
                 Password = loginModel.Password
             };
 
             var result = await MemberService.Login(memberDto);
 
-            if (result == null)
-            {
+            if (result == null) {
                 errorMessage = "Email hoặc mật khẩu không chính xác";
+                isLoading = false;
                 return;
             }
 
             Layout.SetUserSession(result);
-            NavigationManager.NavigateTo("/");
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             Console.WriteLine($"Login Error - Message: {ex.Message}");
-            Console.WriteLine($"Login Error - Stack Trace: {ex.StackTrace}");
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Login Error - Inner Exception: {ex.InnerException.Message}");
-            }
             errorMessage = "Đã xảy ra lỗi. Vui lòng thử lại sau.";
-        }
-        finally
-        {
             isLoading = false;
+            return;
         }
+
+        NavigationManager.NavigateTo("/");
+        isLoading = false;
     }
 }
 
@@ -75,8 +64,7 @@
         <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin" FormName="login_form">
             <DataAnnotationsValidator />
 
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
+            @if (!string.IsNullOrEmpty(errorMessage)) {
                 <div class="alert alert-danger">
                     @errorMessage
                 </div>
@@ -95,13 +83,10 @@
             </div>
 
             <button type="submit" class="btn btn-success w-100 mb-3" disabled="@isLoading">
-                @if (isLoading)
-                {
+                @if (isLoading) {
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     <span class="ms-2">Đang xử lý...</span>
-                }
-                else
-                {
+                } else {
                     <span>Đăng nhập</span>
                 }
             </button>
