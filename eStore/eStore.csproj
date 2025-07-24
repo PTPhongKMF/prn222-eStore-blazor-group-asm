@@ -14,4 +14,14 @@
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Pages\Order\" />
+  </ItemGroup>
+
 </Project>

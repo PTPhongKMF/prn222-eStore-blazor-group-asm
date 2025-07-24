@@ -1,110 +1,365 @@
 ﻿@page "/products/edit/{id:int}"
 @inject IProductService ProductService
 @inject ICategoryService CategoryService
+@inject IFileStorageService FileStorageService
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
 @using BLL.DTOs
 @using BLL.Interface
+@using eStore.Components.Services
 
 <PageTitle>Cập nhật sản phẩm</PageTitle>
 
-@if (isLoading)
-{
-    <div class="text-center p-5">
-        <div class="spinner-border text-primary"></div>
-        <p>Đang tải dữ liệu...</p>
-    </div>
-}
-else if (product == null)
-{
-    <div class="alert alert-danger">Không tìm thấy sản phẩm.</div>
-}
-else
-{
-    <EditForm Model="@product" OnValidSubmit="HandleValidSubmit" FormName="product_edit_form">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        <div class="mb-3">
-            <label class="form-label">Tên sản phẩm</label>
-            <InputText class="form-control" @bind-Value="product.ProductName" />
-            <ValidationMessage For="@(() => product.ProductName)" />
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Cập nhật sản phẩm</h4>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Danh mục</label>
-            <InputSelect class="form-select" @bind-Value="product.CategoryId">
-                <option value="0">-- Chọn danh mục --</option>
-                @foreach (var cat in categories)
+        <div class="card-body">
+            @if (isLoading)
+            {
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Đang tải dữ liệu...</p>
+                </div>
+            }
+            else if (product == null)
+            {
+                <div class="alert alert-danger">Không tìm thấy sản phẩm.</div>
+            }
+            else
+            {
+                @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <option value="@cat.CategoryId">@cat.CategoryName</option>
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        @errorMessage
+                    </div>
                 }
-            </InputSelect>
-            <ValidationMessage For="@(() => product.CategoryId)" />
+
+                <EditForm Model="@product" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+                    <DataAnnotationsValidator />
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <InputText class="form-control" @bind-Value="product.ProductName" placeholder="Nhập tên sản phẩm" />
+                                <ValidationMessage For="@(() => product.ProductName)" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                <InputSelect class="form-select" @bind-Value="product.CategoryId">
+                                    <option value="0">-- Chọn danh mục --</option>
+                                    @foreach (var cat in categories)
+                                    {
+                                        <option value="@cat.CategoryId">@cat.CategoryName</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => product.CategoryId)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Trọng lượng <span class="text-danger">*</span></label>
+                                <InputText class="form-control" @bind-Value="product.Weight" placeholder="Ví dụ: 500g" />
+                                <ValidationMessage For="@(() => product.Weight)" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Giá (VNĐ) <span class="text-danger">*</span></label>
+                                <InputNumber class="form-control" @bind-Value="product.UnitPrice" placeholder="0" />
+                                <ValidationMessage For="@(() => product.UnitPrice)" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Tồn kho <span class="text-danger">*</span></label>
+                                <InputNumber class="form-control" @bind-Value="product.UnitsInStock" placeholder="0" />
+                                <ValidationMessage For="@(() => product.UnitsInStock)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div class="mb-3">
+                        <label class="form-label">Hình ảnh sản phẩm</label>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <InputFile class="form-control" OnChange="OnImageSelected" accept=".jpg,.jpeg,.png,.webp" disabled="@isUploading" />
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Định dạng: JPG, JPEG, PNG, WEBP. Tối đa 5MB.
+                                </div>
+                                @if (isUploading)
+                                {
+                                    <div class="mt-2">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%">
+                                                Đang xử lý file...
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-4">
+                                @if (!string.IsNullOrEmpty(imagePreviewUrl))
+                                {
+                                    <div class="text-center">
+                                        <img src="@imagePreviewUrl" alt="Preview" class="img-thumbnail" style="max-height: 120px; max-width: 100%;" />
+                                        <div class="mt-1">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearImage" disabled="@isUploading">
+                                                <i class="bi bi-trash3"></i> Xóa
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                else if (!string.IsNullOrEmpty(product.ImageUrl))
+                                {
+                                    <div class="text-center">
+                                        <img src="@FileStorageService.GetImageUrl(product.ImageUrl)" alt="Current Image" class="img-thumbnail" style="max-height: 120px; max-width: 100%;" />
+                                        <div class="mt-1 text-muted small">Ảnh hiện tại</div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center p-3 border rounded bg-light">
+                                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                        <div class="text-muted small">Xem trước ảnh</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        
+                        <!-- Alternative URL input -->
+                        <div class="mt-3">
+                            <label class="form-label">Hoặc nhập URL hình ảnh</label>
+                            <InputText class="form-control" @bind-Value="product.ImageUrl" placeholder="https://example.com/image.jpg" disabled="@(selectedImageFile != null)" />
+                            <ValidationMessage For="@(() => product.ImageUrl)" />
+                            @if (selectedImageFile != null)
+                            {
+                                <div class="form-text text-info">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    File đã chọn: @selectedImageFile.Name
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <InputCheckbox class="form-check-input" @bind-Value="product.ActiveStatus" />
+                            <label class="form-check-label">
+                                Sản phẩm đang hoạt động
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary" disabled="@(isSubmitting || isUploading)">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                <text>Đang cập nhật</text>
+                            }
+                            else
+                            {
+                                <i class="bi bi-check-circle me-1"></i>
+                                <text>Cập nhật</text>
+                            }
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="@OnCancel" disabled="@(isSubmitting || isUploading)">Hủy</button>
+                    </div>
+                </EditForm>
+            }
         </div>
-        <div class="mb-3">
-            <label class="form-label">Trọng lượng</label>
-            <InputText class="form-control" @bind-Value="product.Weight" />
-            <ValidationMessage For="@(() => product.Weight)" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Giá</label>
-            <InputNumber class="form-control" @bind-Value="product.UnitPrice" />
-            <ValidationMessage For="@(() => product.UnitPrice)" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Tồn kho</label>
-            <InputNumber class="form-control" @bind-Value="product.UnitsInStock" />
-            <ValidationMessage For="@(() => product.UnitsInStock)" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Hình ảnh (URL)</label>
-            <InputText class="form-control" @bind-Value="product.ImageUrl" />
-            <ValidationMessage For="@(() => product.ImageUrl)" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Trạng thái</label>
-            <InputCheckbox class="form-check-input" @bind-Value="product.ActiveStatus" />
-            <span class="ms-2">Hoạt động</span>
-        </div>
-        <button type="submit" class="btn btn-primary">Cập nhật</button>
-        <button type="button" class="btn btn-secondary ms-2" @onclick="@OnCancel">Hủy</button>
-    </EditForm>
-}
+    </div>
+</div>
 
 @code {
     [Parameter] public int id { get; set; }
     private ProductUpdateDTO? product;
     private List<CategoryDTO> categories = new();
     private bool isLoading = true;
+    private string errorMessage = string.Empty;
+    private bool isSubmitting = false;
+    private bool isUploading = false;
+    private string? imagePreviewUrl;
+    private IBrowserFile? selectedImageFile;
+    private string? originalImageUrl; // Lưu URL ảnh ban đầu để xóa nếu cần
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await CategoryService.GetAllCategoriesAsync();
-        var dto = await ProductService.GetProductByIdAsync(id);
-        if (dto != null)
+        try
         {
-            product = new ProductUpdateDTO
+            categories = await CategoryService.GetAllCategoriesAsync();
+            var dto = await ProductService.GetProductByIdAsync(id);
+            if (dto != null)
             {
-                ProductId = dto.ProductId,
-                ProductName = dto.ProductName,
-                CategoryId = dto.CategoryId,
-                Weight = dto.Weight,
-                UnitPrice = dto.UnitPrice,
-                UnitsInStock = dto.UnitsInStock,
-                ImageUrl = dto.ImageUrl,
-                ActiveStatus = dto.ActiveStatus
-            };
+                product = new ProductUpdateDTO
+                {
+                    ProductId = dto.ProductId,
+                    ProductName = dto.ProductName,
+                    CategoryId = dto.CategoryId,
+                    Weight = dto.Weight,
+                    UnitPrice = dto.UnitPrice,
+                    UnitsInStock = dto.UnitsInStock,
+                    ImageUrl = dto.ImageUrl,
+                    ActiveStatus = dto.ActiveStatus
+                };
+                originalImageUrl = dto.ImageUrl; // Lưu URL ảnh ban đầu
+            }
         }
-        isLoading = false;
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task OnImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+
+        isUploading = true;
+        errorMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            const long maxFileSize = 5 * 1024 * 1024;
+            if (file.Size > maxFileSize)
+            {
+                errorMessage = "Kích thước file không được vượt quá 5MB";
+                return;
+            }
+
+            var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/webp" };
+            if (!allowedTypes.Contains(file.ContentType.ToLower()))
+            {
+                errorMessage = "Chỉ chấp nhận file ảnh (JPG, PNG, WEBP)";
+                return;
+            }
+
+            var extension = Path.GetExtension(file.Name).ToLowerInvariant();
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            if (!allowedExtensions.Contains(extension))
+            {
+                errorMessage = $"Định dạng file không được hỗ trợ: {extension}";
+                return;
+            }
+
+            selectedImageFile = file;
+            product!.ImageUrl = null;
+
+            await CreateImagePreview(file, maxFileSize);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi xử lý file: {ex.Message}";
+            ClearImage();
+        }
+        finally
+        {
+            isUploading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CreateImagePreview(IBrowserFile file, long maxFileSize)
+    {
+        try
+        {
+            const long previewMaxSize = 1024 * 1024;
+            var readSize = Math.Min(file.Size, previewMaxSize);
+            
+            var buffer = new byte[readSize];
+            using var stream = file.OpenReadStream(maxFileSize);
+            await stream.ReadAsync(buffer, 0, (int)readSize);
+            
+            var base64 = Convert.ToBase64String(buffer);
+            imagePreviewUrl = $"data:{file.ContentType};base64,{base64}";
+        }
+        catch (Exception ex)
+        {
+            imagePreviewUrl = null;
+            throw new Exception($"Không thể tạo xem trước: {ex.Message}");
+        }
+    }
+
+    private void ClearImage()
+    {
+        selectedImageFile = null;
+        imagePreviewUrl = null;
+        product!.ImageUrl = originalImageUrl; // Khôi phục về ảnh ban đầu
+        StateHasChanged();
     }
 
     private async Task HandleValidSubmit()
     {
         if (product != null)
         {
-            await ProductService.UpdateProductAsync(product);
-            NavigationManager.NavigateTo("/products");
+            isSubmitting = true;
+            errorMessage = string.Empty;
+
+            try
+            {
+                // Nếu có file ảnh mới được chọn, upload và cập nhật URL
+                if (selectedImageFile != null)
+                {
+                    var uploadResult = await FileStorageService.UploadProductImageAsync(selectedImageFile);
+                    if (uploadResult.Success)
+                    {
+                        // Xóa ảnh cũ nếu có và khác ảnh mặc định
+                        if (!string.IsNullOrEmpty(originalImageUrl) && originalImageUrl != product.ImageUrl)
+                        {
+                            await FileStorageService.DeleteFileAsync(originalImageUrl);
+                        }
+                        
+                        product.ImageUrl = uploadResult.FilePath;
+                    }
+                    else
+                    {
+                        errorMessage = $"Lỗi upload ảnh: {uploadResult.Message}";
+                        return;
+                    }
+                }
+
+                var result = await ProductService.UpdateProductAsync(product);
+                if (result.Success)
+                {
+                    NavigationManager.NavigateTo("/products");
+                }
+                else
+                {
+                    errorMessage = $"Lỗi cập nhật sản phẩm: {result.Message}";
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Lỗi không mong muốn: {ex.Message}";
+            }
+            finally
+            {
+                isSubmitting = false;
+            }
         }
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        errorMessage = "Vui lòng kiểm tra lại thông tin đã nhập!";
     }
 
     private void OnCancel()

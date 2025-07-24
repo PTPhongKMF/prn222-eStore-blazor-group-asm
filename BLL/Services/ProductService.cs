@@ -17,7 +17,10 @@ namespace BLL.Services
         private readonly CategoryRepository categoryRepository;
         private readonly IMapper mapper;
 
-        public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, IMapper mapper)
+        public ProductService(
+            ProductRepository productRepository, 
+            CategoryRepository categoryRepository, 
+            IMapper mapper)
         {
             this.productRepository = productRepository;
             this.categoryRepository = categoryRepository;

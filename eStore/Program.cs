@@ -34,18 +34,47 @@ namespace eStore {
 
             builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(BLLAutoMapper).Assembly));
             
+            // Business Layer Services
             builder.Services.AddScoped<MemberService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            
+            // eStore Services
+            builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
+            // Data Access Layer Repositories
             builder.Services.AddScoped<MemberRepository>();
             builder.Services.AddScoped<ProductRepository>();
             builder.Services.AddScoped<CategoryRepository>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<IProductService, ProductService>();
+
             var app = builder.Build();
 
             // Create and Migrate DB
             using (var scope = app.Services.CreateScope()) {
                 var db = scope.ServiceProvider.GetRequiredService<EStoreDatabaseContext>();
-                db.Database.Migrate(); 
+                db.Database.Migrate();
+
+                // Ensure upload directories exist with better error handling
+                try
+                {
+                    var fileStorage = scope.ServiceProvider.GetRequiredService<IFileStorageService>();
+                    var result = fileStorage.EnsureDirectoryExistsAsync().Result;
+                    
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                    if (result)
+                    {
+                        logger.LogInformation("Upload directories initialized successfully");
+                    }
+                    else
+                    {
+                        logger.LogWarning("Failed to initialize upload directories");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "Error during upload directory initialization");
+                }
             }
 
             // Configure the HTTP request pipeline.
