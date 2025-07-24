@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BLL.DTOs;
+using BLL.Interface;
 using DAL.Entities;
 using DAL.Repositories;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Services
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
         private readonly ProductRepository productRepository;
         private readonly CategoryRepository categoryRepository;
@@ -169,5 +170,4 @@ namespace BLL.Services
             return mapper.Map<List<ProductDTO>>(products);
         }
     }
-}
 }

@@ -1,0 +1,53 @@
+﻿@page "/products/delete/{id:int}"
+@inject IProductService ProductService
+@inject NavigationManager NavigationManager
+
+@using BLL.DTOs
+@using BLL.Interface
+
+<PageTitle>Xóa sản phẩm</PageTitle>
+
+@if (isLoading)
+{
+    <div class="text-center p-5">
+        <div class="spinner-border text-danger"></div>
+        <p>Đang tải dữ liệu...</p>
+    </div>
+}
+else if (product == null)
+{
+    <div class="alert alert-danger">Không tìm thấy sản phẩm.</div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <h5>Bạn có chắc chắn muốn xóa sản phẩm này?</h5>
+        <p><strong>@product.ProductName</strong></p>
+        <p class="fw-bold">Hành động này sẽ ngừng bán sản phẩm nhưng vẫn giữ lại dữ liệu.</p>
+        <button class="btn btn-danger" @onclick="DeleteProduct">Xác nhận xóa</button>
+        <button class="btn btn-secondary ms-2" @onclick="OnCancel">Hủy</button>
+    </div>
+}
+
+@code {
+    [Parameter] public int id { get; set; }
+    private ProductDTO? product;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await ProductService.GetProductByIdAsync(id);
+        isLoading = false;
+    }
+
+    private async Task DeleteProduct()
+    {
+        await ProductService.DeleteProductAsync(id);
+        NavigationManager.NavigateTo("/products");
+    }
+
+    private void OnCancel()
+    {
+        NavigationManager.NavigateTo("/products");
+    }
+}

@@ -6,6 +6,7 @@ using BLL.Services;
 using DAL.Repositories;
 using Blazored.LocalStorage;
 using eStore.Components.Services;
+using BLL.Interface;
 
 namespace eStore {
     public class Program {
@@ -35,7 +36,10 @@ namespace eStore {
             
             builder.Services.AddScoped<MemberService>();
             builder.Services.AddScoped<MemberRepository>();
-
+            builder.Services.AddScoped<ProductRepository>();
+            builder.Services.AddScoped<CategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
             var app = builder.Build();
 
             // Create and Migrate DB

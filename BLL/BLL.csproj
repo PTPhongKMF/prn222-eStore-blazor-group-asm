@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="AutoMapper\Profiles\" />
-    <Folder Include="DTOs\" />
   </ItemGroup>
 
 </Project>

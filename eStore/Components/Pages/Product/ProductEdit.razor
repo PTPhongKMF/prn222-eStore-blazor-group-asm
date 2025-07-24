@@ -1,0 +1,114 @@
+﻿@page "/products/edit/{id:int}"
+@inject IProductService ProductService
+@inject ICategoryService CategoryService
+@inject NavigationManager NavigationManager
+
+@using BLL.DTOs
+@using BLL.Interface
+
+<PageTitle>Cập nhật sản phẩm</PageTitle>
+
+@if (isLoading)
+{
+    <div class="text-center p-5">
+        <div class="spinner-border text-primary"></div>
+        <p>Đang tải dữ liệu...</p>
+    </div>
+}
+else if (product == null)
+{
+    <div class="alert alert-danger">Không tìm thấy sản phẩm.</div>
+}
+else
+{
+    <EditForm Model="@product" OnValidSubmit="HandleValidSubmit" FormName="product_edit_form">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label class="form-label">Tên sản phẩm</label>
+            <InputText class="form-control" @bind-Value="product.ProductName" />
+            <ValidationMessage For="@(() => product.ProductName)" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Danh mục</label>
+            <InputSelect class="form-select" @bind-Value="product.CategoryId">
+                <option value="0">-- Chọn danh mục --</option>
+                @foreach (var cat in categories)
+                {
+                    <option value="@cat.CategoryId">@cat.CategoryName</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => product.CategoryId)" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Trọng lượng</label>
+            <InputText class="form-control" @bind-Value="product.Weight" />
+            <ValidationMessage For="@(() => product.Weight)" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Giá</label>
+            <InputNumber class="form-control" @bind-Value="product.UnitPrice" />
+            <ValidationMessage For="@(() => product.UnitPrice)" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Tồn kho</label>
+            <InputNumber class="form-control" @bind-Value="product.UnitsInStock" />
+            <ValidationMessage For="@(() => product.UnitsInStock)" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Hình ảnh (URL)</label>
+            <InputText class="form-control" @bind-Value="product.ImageUrl" />
+            <ValidationMessage For="@(() => product.ImageUrl)" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Trạng thái</label>
+            <InputCheckbox class="form-check-input" @bind-Value="product.ActiveStatus" />
+            <span class="ms-2">Hoạt động</span>
+        </div>
+        <button type="submit" class="btn btn-primary">Cập nhật</button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="@OnCancel">Hủy</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int id { get; set; }
+    private ProductUpdateDTO? product;
+    private List<CategoryDTO> categories = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoryService.GetAllCategoriesAsync();
+        var dto = await ProductService.GetProductByIdAsync(id);
+        if (dto != null)
+        {
+            product = new ProductUpdateDTO
+            {
+                ProductId = dto.ProductId,
+                ProductName = dto.ProductName,
+                CategoryId = dto.CategoryId,
+                Weight = dto.Weight,
+                UnitPrice = dto.UnitPrice,
+                UnitsInStock = dto.UnitsInStock,
+                ImageUrl = dto.ImageUrl,
+                ActiveStatus = dto.ActiveStatus
+            };
+        }
+        isLoading = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (product != null)
+        {
+            await ProductService.UpdateProductAsync(product);
+            NavigationManager.NavigateTo("/products");
+        }
+    }
+
+    private void OnCancel()
+    {
+        NavigationManager.NavigateTo("/products");
+    }
+}

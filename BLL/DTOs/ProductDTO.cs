@@ -12,11 +12,11 @@ public class ProductDTO
 
     [Required(ErrorMessage = "Tên sản phẩm là bắt buộc")]
     [StringLength(100, MinimumLength = 2, ErrorMessage = "Tên sản phẩm phải từ 2 đến 100 ký tự")]
-    public string ProductName { get; set; } = string.Empty;
+    public string ProductName { get; set; }
 
     [Required(ErrorMessage = "Trọng lượng là bắt buộc")]
     [StringLength(20, MinimumLength = 1, ErrorMessage = "Trọng lượng phải từ 1 đến 20 ký tự")]
-    public string Weight { get; set; } = string.Empty;
+    public string Weight { get; set; }
 
     [Required(ErrorMessage = "Giá sản phẩm là bắt buộc")]
     [Range(0.01, double.MaxValue, ErrorMessage = "Giá sản phẩm phải lớn hơn 0")]
@@ -27,12 +27,11 @@ public class ProductDTO
     [Range(0, int.MaxValue, ErrorMessage = "Số lượng tồn kho không được âm")]
     public int UnitsInStock { get; set; }
 
-    public bool ActiveStatus { get; set; } = true;
+    public bool ActiveStatus { get; set; }
 
     [Url(ErrorMessage = "URL hình ảnh không hợp lệ")]
     [StringLength(500, ErrorMessage = "URL hình ảnh không được vượt quá 500 ký tự")]
     public string? ImageUrl { get; set; }
 
-    // Navigation property for display
     public string? CategoryName { get; set; }
-} 
+}

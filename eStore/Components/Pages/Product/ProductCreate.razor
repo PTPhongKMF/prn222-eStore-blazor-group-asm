@@ -1,0 +1,91 @@
+﻿@page "/products/create"
+@inject IProductService ProductService
+@inject ICategoryService CategoryService
+@inject NavigationManager NavigationManager
+
+@using BLL.DTOs
+@using BLL.Interface
+
+<PageTitle>Thêm sản phẩm mới</PageTitle>
+
+<EditForm Model="@product" OnValidSubmit="HandleValidSubmit" FormName="product_create_form">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label class="form-label" for="productName">Tên sản phẩm</label>
+        <InputText id="productName" class="form-control" @bind-Value="product.ProductName" />
+        <ValidationMessage For="@(() => product.ProductName)" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="categoryId">Danh mục</label>
+        <InputSelect id="categoryId" class="form-select" @bind-Value="product.CategoryId">
+            <option value="0">-- Chọn danh mục --</option>
+            @foreach (var cat in categories)
+            {
+                <option value="@cat.CategoryId">@cat.CategoryName</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => product.CategoryId)" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="weight">Trọng lượng</label>
+        <InputText id="weight" class="form-control" @bind-Value="product.Weight" />
+        <ValidationMessage For="@(() => product.Weight)" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="unitPrice">Giá</label>
+        <InputNumber id="unitPrice" class="form-control" @bind-Value="product.UnitPrice" />
+        <ValidationMessage For="@(() => product.UnitPrice)" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="unitsInStock">Tồn kho</label>
+        <InputNumber id="unitsInStock" class="form-control" @bind-Value="product.UnitsInStock" />
+        <ValidationMessage For="@(() => product.UnitsInStock)" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="imageUrl">Hình ảnh (URL)</label>
+        <InputText id="imageUrl" class="form-control" @bind-Value="product.ImageUrl" />
+        <ValidationMessage For="@(() => product.ImageUrl)" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="activeStatus">Trạng thái</label>
+        <InputCheckbox id="activeStatus" class="form-check-input" @bind-Value="product.ActiveStatus" />
+        <span class="ms-2">Hoạt động</span>
+    </div>
+    <button type="submit" class="btn btn-success">Thêm sản phẩm</button>
+    <button type="button" class="btn btn-secondary ms-2" @onclick="OnCancel">Hủy</button>
+</EditForm>
+
+@code {
+    private ProductCreateDTO product = new();
+    private List<CategoryDTO> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoryService.GetAllCategoriesAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        Console.WriteLine($"ProductName: {product.ProductName}");
+        Console.WriteLine($"CategoryId: {product.CategoryId}");
+        Console.WriteLine($"Weight: {product.Weight}");
+        Console.WriteLine($"UnitPrice: {product.UnitPrice}");
+
+        var result = await ProductService.CreateProductAsync(product);
+        if (result.Success)
+        {
+            NavigationManager.NavigateTo("/products");
+        }
+        else
+        {
+            // Optionally show error message
+        }
+    }
+
+    private void OnCancel()
+    {
+        NavigationManager.NavigateTo("/products");
+    }
+}

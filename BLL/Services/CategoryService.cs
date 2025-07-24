@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BLL.DTOs;
+using BLL.Interface;
 using DAL.Repositories;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BLL.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
         private readonly CategoryRepository categoryRepository;
         private readonly IMapper mapper;
@@ -32,5 +33,4 @@ namespace BLL.Services
             return category == null ? null : mapper.Map<CategoryDTO>(category);
         }
     }
-}
 }
