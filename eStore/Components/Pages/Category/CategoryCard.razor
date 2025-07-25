@@ -1,0 +1,19 @@
+@code {
+    [Parameter]
+    public CategoryDTO Category { get; set; } = null!;
+}
+
+<a href="/categories/@Category.CategoryId" class="text-decoration-none">
+    <div class="card h-100 category-card">
+        <img src="@(string.IsNullOrEmpty(Category.ImageUrl) ? "/images/no_img.jpg" : Category.ImageUrl)"
+             class="card-img-top category-img"
+             alt="@Category.CategoryName">
+        <div class="card-body">
+            <h4 class="card-title text-center mb-3">@Category.CategoryName</h4>
+            @if (!string.IsNullOrEmpty(Category.Description)) {
+                <p class="card-text text-muted">@Category.Description</p>
+            }
+        </div>
+    </div>
+</a>
+

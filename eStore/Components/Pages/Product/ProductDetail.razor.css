@@ -1,0 +1,11 @@
+.product-img {
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Remove number input spinners */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    margin: 0;
+} 

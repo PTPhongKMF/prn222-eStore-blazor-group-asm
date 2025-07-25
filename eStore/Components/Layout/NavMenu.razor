@@ -1,14 +1,16 @@
 ﻿@using eStore.Components.Layout
+@using eStore.Components.Services
+@using BLL.DTOs
 
 @code {
-    [CascadingParameter]
-    private MainLayout Layout { get; set; } = null!;
+    [Inject] private SessionService SessionService { get; set; } = null!;
 
     private string GetDisplayName()
     {
-        if (Layout.UserSession?.Email == null) return string.Empty;
-        int atIndex = Layout.UserSession.Email.IndexOf('@');
-        return atIndex > 0 ? Layout.UserSession.Email[..atIndex] : Layout.UserSession.Email;
+        var user = SessionService.GetUserSession();
+        if (user?.Email == null) return string.Empty;
+        int atIndex = user.Email.IndexOf('@');
+        return atIndex > 0 ? user.Email[..atIndex] : user.Email;
     }
 }
 
@@ -35,7 +37,7 @@
 
             <!-- Right section - User -->
             <div class="col-4 d-flex align-items-center justify-content-end pe-4">
-                @if (Layout.UserSession != null)
+                @if (SessionService.GetUserSession() != null)
                 {
                     <div class="dropdown">
                         <a class="nav-link text-white px-3 py-2 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

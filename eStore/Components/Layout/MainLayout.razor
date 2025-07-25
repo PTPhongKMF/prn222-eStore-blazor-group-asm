@@ -1,44 +1,16 @@
 ﻿@inherits LayoutComponentBase
-@using BLL.DTOs
 
-@code {
-    [Inject]
-    private SessionService SessionService { get; set; } = null!;
+<div class="page">
+    <NavMenu />
+    <main>
+        <div class="content">
+            @Body
+        </div>
+    </main>
+</div>
 
-    public MemberDTO? UserSession { get; private set; }
-
-    protected override void OnInitialized()
-    {
-        UserSession = SessionService.GetUserSession();
-    }
-
-    public void SetUserSession(MemberDTO? user)
-    {
-        UserSession = user;
-        if (user != null)
-        {
-            SessionService.SetUserSession(user);
-        }
-        else
-        {
-            SessionService.ClearUserSession();
-        }
-    }
-}
-
-<CascadingValue Value="this">
-    <div class="page">
-        <NavMenu />
-        <main>
-            <div class="content">
-                @Body
-            </div>
-        </main>
-    </div>
-
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
-</CascadingValue>
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

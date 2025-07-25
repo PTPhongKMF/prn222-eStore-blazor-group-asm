@@ -1,17 +1,14 @@
 ﻿@page "/login"
 
 @using eStore.Components.Models.Auth
-@using eStore.Components.Layout
+@using eStore.Components.Services
+@using BLL.DTOs
 
 @code {
-    [Inject]
-    private MemberService MemberService { get; set; } = null!;
-
-    [Inject]
-    private NavigationManager NavigationManager { get; set; } = null!;
-
-    [CascadingParameter]
-    private MainLayout Layout { get; set; } = null!;
+    [Inject] private MemberService MemberService { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [Inject] private IConfiguration Configuration { get; set; } = null!;
+    [Inject] private SessionService SessionService { get; set; } = null!;
 
     [SupplyParameterFromForm]
     private LoginModel loginModel { get; set; } = new();
@@ -20,7 +17,7 @@
     private bool isLoading;
 
     protected override async Task OnInitializedAsync() {
-        if (Layout.UserSession != null) {
+        if (SessionService.GetUserSession() != null) {
             NavigationManager.NavigateTo("/");
             await Task.CompletedTask;
         }
@@ -31,29 +28,47 @@
         errorMessage = null;
 
         try {
-            var memberDto = new MemberDTO {
+            string? adminEmail = Configuration["AdminAccount:email"];
+            string? adminPassword = Configuration["AdminAccount:password"];
+
+            if (loginModel.Email.Trim() == adminEmail && loginModel.Password == adminPassword) {
+                MemberDTO adminDto = new() {
+                    MemberId = 0,
+                    Email = adminEmail,
+                    Password = string.Empty,
+                    CompanyName = "Admin",
+                    Country = "System",
+                    City = "System"
+                };
+
+                SessionService.SetUserSession(adminDto);
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+
+            MemberDTO memberDto = new() {
                 Email = loginModel.Email.Trim(),
                 Password = loginModel.Password
             };
 
             var result = await MemberService.Login(memberDto);
 
-            if (result == null) {
-                errorMessage = "Email hoặc mật khẩu không chính xác";
-                isLoading = false;
-                return;
+            if (result != null)
+            {
+                SessionService.SetUserSession(result);
+                NavigationManager.NavigateTo("/");
             }
-
-            Layout.SetUserSession(result);
-        } catch (Exception ex) {
-            Console.WriteLine($"Login Error - Message: {ex.Message}");
-            errorMessage = "Đã xảy ra lỗi. Vui lòng thử lại sau.";
-            isLoading = false;
-            return;
+            else
+            {
+                errorMessage = "Invalid email or password";
+            }
         }
-
-        NavigationManager.NavigateTo("/");
-        isLoading = false;
+        catch (Exception ex) {
+            errorMessage = ex.Message;
+        }
+        finally {
+            isLoading = false;
+        }
     }
 }
 

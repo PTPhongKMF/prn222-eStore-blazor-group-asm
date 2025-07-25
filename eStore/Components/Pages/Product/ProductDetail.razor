@@ -1,0 +1,97 @@
+@page "/products/detail/{ProductId:int}"
+@rendermode InteractiveServer
+
+@code {
+    [Parameter]
+    public int ProductId { get; set; }
+
+    [Inject] private ProductService ProductService { get; set; } = null!;
+
+    private ProductDTO? product;
+    private List<ProductDTO> relatedProducts = new();
+
+    [Required(ErrorMessage = "Vui lòng nhập số lượng")]
+    public int Quantity { get; set; } = 1;
+
+    protected override async Task OnParametersSetAsync() {
+        var result = await ProductService.GetActiveProducts(1, 1, ProductSortBy.None, null, null, null, null);
+        product = result.Items.FirstOrDefault(p => p.ProductId == ProductId);
+
+        if (product != null) {
+            relatedProducts = await ProductService.GetRandomProductsFromCategory(
+                product.CategoryId,
+                6,
+                product.ProductId);
+        }
+    }
+
+    private async Task AddToCart() {
+        if (product == null || Quantity < 1 || Quantity > product.UnitsInStock) return;
+        // TODO: Implement add to cart functionality
+    }
+}
+
+<div class="container mt-4">
+    @if (product != null) {
+        <div class="card mb-4">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/no_img.jpg" : product.ImageUrl)"
+                         class="img-fluid rounded-start product-img"
+                         alt="@product.ProductName">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h2 class="card-title mb-1">@product.ProductName</h2>
+                                <a href="/categories/@product.CategoryId" class="text-muted">@product.Category.CategoryName</a>
+                            </div>
+                            <h3 class="text-primary">@product.UnitPrice.ToString("N0") ₫</h3>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="mb-3">
+                            <p class="mb-1">Khối lượng: @product.Weight</p>
+                            <p class="mb-0">Còn @product.UnitsInStock sản phẩm</p>
+                        </div>
+
+                        <EditForm Model="this" OnValidSubmit="AddToCart">
+                            <DataAnnotationsValidator />
+                            <div class="d-flex align-items-center gap-3 mt-4">
+                                <div class="input-group" style="width: 140px;">
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="() => Quantity--">-</button>
+                                    <InputNumber @bind-Value="Quantity" class="form-control text-center" />
+                                    <button type="button" class="btn btn-outline-secondary" @onclick="() => Quantity++">+</button>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    Thêm vào giỏ
+                                </button>
+                            </div>
+                            <ValidationMessage For="() => Quantity" class="text-danger" />
+                            @if (Quantity > product.UnitsInStock)
+                            {
+                                <div class="text-danger mt-2">Số lượng không thể vượt quá @product.UnitsInStock</div>
+                            }
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (relatedProducts.Any()) {
+            <div class="mb-4">
+                <h3 class="mb-4">Các sản phẩm cùng danh mục</h3>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                    @foreach (var relatedProduct in relatedProducts) {
+                        <div class="col">
+                            <ProductCard Product="relatedProduct" />
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
+

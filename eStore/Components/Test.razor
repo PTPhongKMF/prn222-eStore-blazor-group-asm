@@ -1,0 +1,19 @@
+﻿@page "/test"
+@rendermode InteractiveServer
+
+@code {
+    public string SearchTerm = string.Empty;
+}
+
+<h3>Test</h3>
+
+<div class="input-group">
+    <span class="input-group-text">
+        <i class="bi bi-search"></i>
+    </span>
+    <input @bind="SearchTerm" type="text" class="form-control" placeholder="Tìm kiếm theo tên sản phẩm, khối lượng hoặc danh mục...">
+    <button class="btn btn-primary">
+        Tìm kiếm
+    </button>
+</div>
+<small class="text-muted mt-2">Current search term: @SearchTerm</small>

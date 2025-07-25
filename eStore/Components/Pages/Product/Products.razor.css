@@ -1,0 +1,12 @@
+.hero-section {
+    height: 18.75rem;
+    background-image: url('images/product/products.jfif');
+    background-size: cover;
+    background-position: center;
+}
+
+.title-bg {
+    background-color: rgba(40, 167, 69, 0.9);
+    border-radius: 0.5rem;
+    display: inline-block;
+} 
