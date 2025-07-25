@@ -1,0 +1,99 @@
+﻿@page "/profile/edit"
+@using BLL.DTOs
+@inject MemberService MemberService
+@inject NavigationManager NavigationManager
+
+<h3>Cập nhật thông tin cá nhân</h3>
+
+<EditForm Model="@memberModel" OnValidSubmit="@HandleUpdate" FormName="profile_form">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success">@successMessage</div>
+    }
+
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="memberModel.Email" />
+        <ValidationMessage For="@(() => memberModel.Email)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="companyName" class="form-label">Tên công ty</label>
+        <InputText id="companyName" class="form-control" @bind-Value="memberModel.CompanyName" />
+        <ValidationMessage For="@(() => memberModel.CompanyName)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="city" class="form-label">Thành phố</label>
+        <InputText id="city" class="form-control" @bind-Value="memberModel.City" />
+        <ValidationMessage For="@(() => memberModel.City)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="country" class="form-label">Quốc gia</label>
+        <InputText id="country" class="form-control" @bind-Value="memberModel.Country" />
+        <ValidationMessage For="@(() => memberModel.Country)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Mật khẩu</label>
+        <InputText id="password" type="password" class="form-control" @bind-Value="memberModel.Password" />
+        <ValidationMessage For="@(() => memberModel.Password)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary" disabled="@isLoading">
+        @if (isLoading)
+        {
+            <span class="spinner-border spinner-border-sm"></span>
+            <span class="ms-2">Đang lưu...</span>
+        }
+        else
+        {
+            <span>Lưu thay đổi</span>
+        }
+    </button>
+</EditForm>
+
+@code {
+    private MemberDTO memberModel = new();
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // TODO: Load current member info, e.g. from session or service
+        // Example: memberModel = await MemberService.GetCurrentMemberAsync();
+    }
+
+    @code {  
+        private async Task HandleUpdate()  
+        {  
+            isLoading = true;  
+            errorMessage = null;  
+            successMessage = null;  
+
+            var result = await MemberService.UpdateMemberAsync(memberModel);  
+
+            if (!result.Success) // Updated condition to check the 'Success' property of the result tuple  
+            {   
+                errorMessage = result.Message; // Use the 'Message' property from the result tuple  
+            }  
+            else  
+            {  
+                successMessage = "Cập nhật thông tin thành công!";  
+                // Optionally navigate or refresh  
+                // NavigationManager.NavigateTo("/profile");  
+            }  
+
+            isLoading = false;  
+        }  
+    }
+}

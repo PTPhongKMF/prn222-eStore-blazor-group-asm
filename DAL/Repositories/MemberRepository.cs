@@ -23,5 +23,25 @@ namespace DAL.Repositories {
 
             return user;
         }
+
+        public async Task<Member?> UpdateMemberAsync(Member member)
+        {
+            var existingMember = await dbContext.Member.FindAsync(member.MemberId);
+            if (existingMember == null) return null;
+
+            existingMember.Email = member.Email;
+            existingMember.CompanyName = member.CompanyName;
+            existingMember.City = member.City;
+            existingMember.Country = member.Country;
+            existingMember.Password = member.Password;
+
+            await dbContext.SaveChangesAsync();
+            return existingMember;
+        }
+
+        public async Task<Member?> GetMemberByIdAsync(int memberId)
+        {
+            return await dbContext.Member.FindAsync(memberId);
+        }
     }
 }
