@@ -17,10 +17,11 @@
     private bool isLoading;
 
     protected override async Task OnInitializedAsync() {
-        if (SessionService.GetUserSession() != null) {
+        var session = SessionService.GetUserSession();
+        if (session != null) {
             NavigationManager.NavigateTo("/");
-            await Task.CompletedTask;
         }
+        await Task.CompletedTask;
     }
 
     private async Task HandleLogin() {
@@ -42,7 +43,6 @@
                 };
 
                 SessionService.SetUserSession(adminDto);
-                NavigationManager.NavigateTo("/");
                 return;
             }
 
@@ -53,22 +53,19 @@
 
             var result = await MemberService.Login(memberDto);
 
-            if (result != null)
-            {
+            if (result != null) {
                 SessionService.SetUserSession(result);
                 NavigationManager.NavigateTo("/");
-            }
-            else
-            {
+            } else {
                 errorMessage = "Invalid email or password";
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             errorMessage = ex.Message;
         }
-        finally {
-            isLoading = false;
-        }
+
+        isLoading = false;
+        NavigationManager.NavigateTo("/");
+
     }
 }
 
