@@ -1,8 +1,11 @@
-@page "/products/create"
+﻿@page "/products/create"
 @inject IProductService ProductService
 @inject ICategoryService CategoryService
 @inject IFileStorageService FileStorageService
 @inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+@inject SessionService SessionService
+@using eStore.Components.Layout
 @rendermode InteractiveServer
 
 @using BLL.DTOs
@@ -11,158 +14,168 @@
 
 <PageTitle>Add New Product</PageTitle>
 
-<div class="container py-4">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Add New Product</h4>
-        </div>
-        <div class="card-body">
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <div class="alert alert-danger" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    @errorMessage
-                </div>
-            }
+@if (!IsAdmin)
+{
+    <div class="alert alert-danger text-center my-5" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        Bạn không có quyền để thực hiện chức năng này.<br />
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Add New Product</h4>
+            </div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        @errorMessage
+                    </div>
+                }
 
-            <EditForm Model="@product" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit">
-                <DataAnnotationsValidator />
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="productName">Product Name <span class="text-danger">*</span></label>
-                            <InputText id="productName" class="form-control" @bind-Value="product.ProductName" placeholder="Enter product name" />
-                            <ValidationMessage For="@(() => product.ProductName)" />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label" for="categoryId">Category <span class="text-danger">*</span></label>
-                            <InputSelect id="categoryId" class="form-select" @bind-Value="product.CategoryId">
-                                <option value="0">-- Select Category --</option>
-                                @foreach (var cat in categories)
-                                {
-                                    <option value="@cat.CategoryId">@cat.CategoryName</option>
-                                }
-                            </InputSelect>
-                            <ValidationMessage For="@(() => product.CategoryId)" />
-                        </div>
-                    </div>
-                </div>
+                <EditForm Model="@product" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" FormName="ProductCreate">
+                    <DataAnnotationsValidator />
 
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label" for="weight">Weight <span class="text-danger">*</span></label>
-                            <InputText id="weight" class="form-control" @bind-Value="product.Weight" placeholder="e.g. 500g" />
-                            <ValidationMessage For="@(() => product.Weight)" />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label" for="unitPrice">Price (VND) <span class="text-danger">*</span></label>
-                            <InputNumber id="unitPrice" class="form-control" @bind-Value="product.UnitPrice" placeholder="0" />
-                            <ValidationMessage For="@(() => product.UnitPrice)" />
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label" for="unitsInStock">Stock <span class="text-danger">*</span></label>
-                            <InputNumber id="unitsInStock" class="form-control" @bind-Value="product.UnitsInStock" placeholder="0" />
-                            <ValidationMessage For="@(() => product.UnitsInStock)" />
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Image Upload Section -->
-                <div class="mb-3">
-                    <label class="form-label">Product Image</label>
                     <div class="row">
-                        <div class="col-md-8">
-                            <InputFile class="form-control" OnChange="OnImageSelected" accept=".jpg,.jpeg,.png,.webp" disabled="@isUploading" />
-                            <div class="form-text">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Format: JPG, JPEG, PNG, WEBP. Max 5MB.
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="productName">Product Name <span class="text-danger">*</span></label>
+                                <InputText id="productName" class="form-control" @bind-Value="product.ProductName" placeholder="Enter product name" />
+                                <ValidationMessage For="@(() => product.ProductName)" />
                             </div>
-                            @if (isUploading)
-                            {
-                                <div class="mt-2">
-                                    <div class="progress">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%">
-                                            Processing file...
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="categoryId">Category <span class="text-danger">*</span></label>
+                                <InputSelect id="categoryId" class="form-select" @bind-Value="product.CategoryId">
+                                    <option value="0">-- Select Category --</option>
+                                    @foreach (var cat in categories)
+                                    {
+                                        <option value="@cat.CategoryId">@cat.CategoryName</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => product.CategoryId)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="weight">Weight <span class="text-danger">*</span></label>
+                                <InputText id="weight" class="form-control" @bind-Value="product.Weight" placeholder="e.g. 500g" />
+                                <ValidationMessage For="@(() => product.Weight)" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="unitPrice">Price (VND) <span class="text-danger">*</span></label>
+                                <InputNumber id="unitPrice" class="form-control" @bind-Value="product.UnitPrice" placeholder="0" />
+                                <ValidationMessage For="@(() => product.UnitPrice)" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label" for="unitsInStock">Stock <span class="text-danger">*</span></label>
+                                <InputNumber id="unitsInStock" class="form-control" @bind-Value="product.UnitsInStock" placeholder="0" />
+                                <ValidationMessage For="@(() => product.UnitsInStock)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div class="mb-3">
+                        <label class="form-label">Product Image</label>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <InputFile class="form-control" OnChange="OnImageSelected" accept=".jpg,.jpeg,.png,.webp" disabled="@isUploading" />
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Format: JPG, JPEG, PNG, WEBP. Max 5MB.
+                                </div>
+                                @if (isUploading)
+                                {
+                                    <div class="mt-2">
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%">
+                                                Processing file...
+                                            </div>
                                         </div>
                                     </div>
+                                }
+                            </div>
+                            <div class="col-md-4">
+                                @if (!string.IsNullOrEmpty(imagePreviewUrl))
+                                {
+                                    <div class="text-center">
+                                        <img src="@imagePreviewUrl" alt="Preview" class="img-thumbnail" style="max-height: 120px; max-width: 100%;" />
+                                        <div class="mt-1">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearImage" disabled="@isUploading">
+                                                <i class="bi bi-trash3"></i> Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center p-3 border rounded bg-light">
+                                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                        <div class="text-muted small">Image Preview</div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Alternative URL input -->
+                        <div class="mt-3">
+                            <label class="form-label">Or enter image URL</label>
+                            <InputText class="form-control" @bind-Value="product.ImageUrl" placeholder="https://example.com/image.jpg" disabled="@(selectedImageFile != null)" />
+                            <ValidationMessage For="@(() => product.ImageUrl)" />
+                            @if (selectedImageFile != null)
+                            {
+                                <div class="form-text text-info">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Selected file: @selectedImageFile.Name
                                 </div>
                             }
                         </div>
-                        <div class="col-md-4">
-                            @if (!string.IsNullOrEmpty(imagePreviewUrl))
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <InputCheckbox id="activeStatus" class="form-check-input" @bind-Value="product.ActiveStatus" />
+                            <label class="form-check-label" for="activeStatus">
+                                Product is active
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success" disabled="@(isSubmitting || isUploading)">
+                            @if (isSubmitting)
                             {
-                                <div class="text-center">
-                                    <img src="@imagePreviewUrl" alt="Preview" class="img-thumbnail" style="max-height: 120px; max-width: 100%;" />
-                                    <div class="mt-1">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearImage" disabled="@isUploading">
-                                            <i class="bi bi-trash3"></i> Clear
-                                        </button>
-                                    </div>
-                                </div>
+                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                <text>Creating</text>
                             }
                             else
                             {
-                                <div class="text-center p-3 border rounded bg-light">
-                                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
-                                    <div class="text-muted small">Image Preview</div>
-                                </div>
+                                <i class="bi bi-plus-circle me-1"></i>
+                                <text>Add Product</text>
                             }
-                        </div>
+                        </button>
+                        <button type="button" class="btn btn-secondary" @onclick="OnCancel" disabled="@(isSubmitting || isUploading)">
+                            Cancel
+                        </button>
                     </div>
-                    
-                    <!-- Alternative URL input -->
-                    <div class="mt-3">
-                        <label class="form-label">Or enter image URL</label>
-                        <InputText class="form-control" @bind-Value="product.ImageUrl" placeholder="https://example.com/image.jpg" disabled="@(selectedImageFile != null)" />
-                        <ValidationMessage For="@(() => product.ImageUrl)" />
-                        @if (selectedImageFile != null)
-                        {
-                            <div class="form-text text-info">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Selected file: @selectedImageFile.Name
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <div class="form-check">
-                        <InputCheckbox id="activeStatus" class="form-check-input" @bind-Value="product.ActiveStatus" />
-                        <label class="form-check-label" for="activeStatus">
-                            Product is active
-                        </label>
-                    </div>
-                </div>
-
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success" disabled="@(isSubmitting || isUploading)">
-                        @if (isSubmitting)
-                        {
-                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                            <text>Creating</text>
-                        }
-                        else
-                        {
-                            <i class="bi bi-plus-circle me-1"></i>
-                            <text>Add Product</text>
-                        }
-                    </button>
-                    <button type="button" class="btn btn-secondary" @onclick="OnCancel" disabled="@(isSubmitting || isUploading)">
-                        Cancel
-                    </button>
-                </div>
-            </EditForm>
+                </EditForm>
+            </div>
         </div>
     </div>
-</div>
+}
 
 @code {
     private ProductCreateDTO product = new();
@@ -173,15 +186,24 @@
     private string? imagePreviewUrl;
     private IBrowserFile? selectedImageFile;
 
+    private bool IsAdmin { get; set; }
+    private string AdminEmail => "admin@estore.com";
+
     protected override async Task OnInitializedAsync()
     {
-        try
+        var user = SessionService.GetUserSession();
+        IsAdmin = user != null && user.Email.Equals(AdminEmail, StringComparison.OrdinalIgnoreCase);
+
+        if (IsAdmin)
         {
-            categories = await CategoryService.GetAllCategoriesAsync();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Error loading categories: {ex.Message}";
+            try
+            {
+                categories = await CategoryService.GetAllCategoriesAsync();
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"Error loading categories: {ex.Message}";
+            }
         }
     }
 
@@ -241,11 +263,11 @@
         {
             const long previewMaxSize = 1024 * 1024;
             var readSize = Math.Min(file.Size, previewMaxSize);
-            
+
             var buffer = new byte[readSize];
             using var stream = file.OpenReadStream(maxFileSize);
             await stream.ReadAsync(buffer, 0, (int)readSize);
-            
+
             var base64 = Convert.ToBase64String(buffer);
             imagePreviewUrl = $"data:{file.ContentType};base64,{base64}";
         }

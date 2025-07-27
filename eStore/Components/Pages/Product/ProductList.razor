@@ -1,5 +1,9 @@
 ﻿@page "/products"
+@using eStore.Components.Layout
 @inherits ProductListBase
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
+@inject SessionService SessionService
 
 <PageTitle>Quản lý sản phẩm</PageTitle>
 
@@ -103,11 +107,9 @@
                                         <a href="/products/edit/@product.ProductId" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <button class="btn btn-sm btn-outline-danger"
-                                                @onclick="() => ShowDeleteDialog(product.ProductId)"
-                                                title="Xóa">
+                                        <a href="/products/delete/@product.ProductId" class="btn btn-sm btn-outline-danger" title="Xóa">
                                             <i class="bi bi-trash"></i>
-                                        </button>
+                                        </a>
                                     </td>
                                 </tr>
                             }
@@ -143,38 +145,21 @@
     </div>
 </div>
 
-@if (ShowDelete && DeleteProductId.HasValue)
-{
-    <div class="modal-backdrop fade show"></div>
-    <div class="modal fade show d-block" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Xóa sản phẩm</h5>
-                    <button type="button" class="btn-close btn-close-white" @onclick="HideDeleteDialog"></button>
-                </div>
+@code {
+    private bool IsAdmin { get; set; }
+    private string AdminEmail => "admin@estore.com";
 
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
-                    <p class="fw-bold">Hành động này sẽ ngừng bán sản phẩm nhưng vẫn giữ lại dữ liệu.</p>
+    protected override async Task OnInitializedAsync()
+    {
+        var user = SessionService.GetUserSession();
+        IsAdmin = user != null && user.Email.Equals(AdminEmail, StringComparison.OrdinalIgnoreCase);
 
-                    @if (!string.IsNullOrEmpty(ErrorMessage))
-                    {
-                        <div class="alert alert-danger">@ErrorMessage</div>
-                    }
-                </div>
+        if (!IsAdmin)
+        {
+            NavigationManager.NavigateTo("/login", true);
+            return;
+        }
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="HideDeleteDialog">Hủy</button>
-                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete" disabled="@IsDeleting">
-                        @if (IsDeleting)
-                        {
-                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                        }
-                        Xác nhận xóa
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+        await base.OnInitializedAsync();
+    }
 }

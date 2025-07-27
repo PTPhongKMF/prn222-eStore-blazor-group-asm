@@ -4,6 +4,12 @@
     [CascadingParameter]
     private MainLayout Layout { get; set; } = null!;
 
+    private string AdminEmail => "admin@estore.com";
+
+    private bool IsAdmin =>
+        Layout.UserSession != null &&
+        Layout.UserSession.Email.Equals(AdminEmail, StringComparison.OrdinalIgnoreCase);
+
     private string GetDisplayName()
     {
         if (Layout.UserSession?.Email == null) return string.Empty;
@@ -25,9 +31,12 @@
                 <NavLink class="nav-link text-white px-3 py-2" href="" Match="NavLinkMatch.All">
                     Trang Chủ
                 </NavLink>
-                <NavLink class="nav-link text-white px-3 py-2" href="products">
-                    Sản Phẩm
-                </NavLink>
+                @if (IsAdmin)
+                {
+                    <NavLink class="nav-link text-white px-3 py-2" href="products">
+                        Sản Phẩm
+                    </NavLink>
+                }
                 <NavLink class="nav-link text-white px-3 py-2" href="categories">
                     Danh Mục
                 </NavLink>

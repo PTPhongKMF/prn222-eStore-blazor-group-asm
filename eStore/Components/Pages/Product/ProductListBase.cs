@@ -17,11 +17,6 @@ public class ProductListBase : ComponentBase
     protected string StatusFilter { get; set; } = "all";
     protected bool IsLoading { get; set; } = true;
 
-    protected bool ShowDelete { get; set; }
-    protected int? DeleteProductId { get; set; }
-    protected bool IsDeleting { get; set; }
-    protected string? ErrorMessage { get; set; }
-
     protected override async Task OnInitializedAsync()
     {
         IsLoading = true;
@@ -42,39 +37,5 @@ public class ProductListBase : ComponentBase
         else if (StatusFilter == "inactive")
             query = query.Where(p => !p.ActiveStatus);
         return query.ToList();
-    }
-
-    protected void ShowDeleteDialog(int productId)
-    {
-        DeleteProductId = productId;
-        ShowDelete = true;
-        ErrorMessage = null;
-    }
-
-    protected void HideDeleteDialog()
-    {
-        ShowDelete = false;
-        DeleteProductId = null;
-        ErrorMessage = null;
-    }
-
-    protected async Task ConfirmDelete()
-    {
-        if (DeleteProductId.HasValue)
-        {
-            IsDeleting = true;
-            ErrorMessage = null;
-            try
-            {
-                await ProductService.DeleteProductAsync(DeleteProductId.Value);
-                Products = await ProductService.GetAllProductsAsync();
-                HideDeleteDialog();
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = "Không thể xóa sản phẩm: " + ex.Message;
-            }
-            IsDeleting = false;
-        }
     }
 }
