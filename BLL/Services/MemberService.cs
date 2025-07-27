@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using BLL.DTOs;
 using DAL.Entities;
@@ -26,32 +25,28 @@ namespace BLL.Services {
             return mapper.Map<MemberDTO>(user);
         }
 
-        public async Task<(bool Success, string Message, MemberDTO? Member)> UpdateMemberAsync(MemberDTO memberDto)
-        {
-            var validationContext = new ValidationContext(memberDto);
-            var validationResults = new List<ValidationResult>();
-            bool isValid = Validator.TryValidateObject(memberDto, validationContext, validationResults, true);
-
-            if (!isValid)
-            {
-                string errorMessages = string.Join("; ", validationResults.Select(r => r.ErrorMessage));
-                return (false, errorMessages, null);
-            }
-
-            var memberEntity = mapper.Map<Member>(memberDto);
-            var updatedMember = await memberRepository.UpdateMemberAsync(memberEntity);
-            if (updatedMember == null)
-                return (false, "Member not found or update failed.", null);
-
-            return (true, "Profile updated successfully.", mapper.Map<MemberDTO>(updatedMember));
+        public async Task<List<MemberDTO>> GetAll() {
+            var users = await memberRepository.GetAll();
+            return users.Select(u => mapper.Map<MemberDTO>(u)).ToList();
         }
 
-        // Example stub for loading current member (replace with your logic)
-        public async Task<MemberDTO?> GetCurrentMemberAsync()
-        {
-            int currentMemberId = 1; 
-            var member = await memberRepository.GetMemberByIdAsync(currentMemberId);
-            return member == null ? null : mapper.Map<MemberDTO>(member);
+        public async Task<MemberDTO?> GetById(int memberId) {
+            var user = await memberRepository.GetById(memberId);
+            return mapper.Map<MemberDTO>(user);
+        }
+
+        public async Task Add(MemberDTO member) {
+            var entity = mapper.Map<Member>(member);
+            await memberRepository.Add(entity);
+        }
+
+        public async Task Update(MemberDTO member) {
+            var entity = mapper.Map<Member>(member);
+            await memberRepository.Update(entity);
+        }
+
+        public async Task Delete(int memberId) {
+            await memberRepository.Delete(memberId);
         }
     }
 }

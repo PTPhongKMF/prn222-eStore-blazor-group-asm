@@ -24,24 +24,53 @@ namespace DAL.Repositories {
             return user;
         }
 
-        public async Task<Member?> UpdateMemberAsync(Member member)
+        // CREATE
+        public async Task<Member> Add(Member member)
         {
-            var existingMember = await dbContext.Member.FindAsync(member.MemberId);
-            if (existingMember == null) return null;
-
-            existingMember.Email = member.Email;
-            existingMember.CompanyName = member.CompanyName;
-            existingMember.City = member.City;
-            existingMember.Country = member.Country;
-            existingMember.Password = member.Password;
-
+            dbContext.Member.Add(member);
             await dbContext.SaveChangesAsync();
-            return existingMember;
+            return member;
         }
 
-        public async Task<Member?> GetMemberByIdAsync(int memberId)
+        // READ ALL
+        public async Task<List<Member>> GetAll()
+        {
+            return await dbContext.Member.ToListAsync();
+        }
+
+        // READ BY ID
+        public async Task<Member?> GetById(int memberId)
         {
             return await dbContext.Member.FindAsync(memberId);
+        }
+
+        // UPDATE
+        public async Task Update(Member member)
+        {
+            var trackedEntity = dbContext.ChangeTracker.Entries<Member>()
+                .FirstOrDefault(e => e.Entity.MemberId == member.MemberId);
+
+            if (trackedEntity != null)
+            {
+                // Detach the already tracked entity
+                trackedEntity.State = EntityState.Detached;
+            }
+
+            dbContext.Member.Attach(member);
+            dbContext.Entry(member).State = EntityState.Modified;
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        // DELETE
+        public async Task Delete(int memberId)
+        {
+            var member = await dbContext.Member.FindAsync(memberId);
+            if (member != null)
+            {
+                dbContext.Member.Remove(member);
+                await dbContext.SaveChangesAsync();
+            }
         }
     }
 }
