@@ -23,5 +23,19 @@ namespace DAL.Repositories {
 
             return user;
         }
+
+        public async Task<Member?> Register(Member member) {
+            bool emailExists = await dbContext.Member
+                .AnyAsync(m => m.Email.ToLower() == member.Email.ToLower());
+
+            if (emailExists) {
+                return null;
+            }
+
+            await dbContext.Member.AddAsync(member);
+            await dbContext.SaveChangesAsync();
+
+            return member;
+        }
     }
 }

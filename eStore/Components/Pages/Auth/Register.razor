@@ -1,9 +1,122 @@
 ﻿@page "/register"
 
-@code {
+@using eStore.Components.Models.Auth
+@using eStore.Components.Services
+@using BLL.DTOs
 
+@code {
+    [Inject] private MemberService MemberService { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [Inject] private SessionService SessionService { get; set; } = null!;
+
+    [SupplyParameterFromForm]
+    private RegisterModel registerModel { get; set; } = new();
+
+    private string? errorMessage;
+    private bool isLoading;
+    private bool showSuccessModal = false;
+
+    protected override async Task OnInitializedAsync() {
+        var session = SessionService.GetUserSession();
+        if (session != null) {
+            NavigationManager.NavigateTo("/");
+        }
+        await Task.CompletedTask;
+    }
+
+    private async Task HandleRegister() {
+        isLoading = true;
+        errorMessage = null;
+
+        try {
+            MemberDTO memberDto = new() {
+                Email = registerModel.Email.Trim(),
+                Password = registerModel.Password
+            };
+
+            var result = await MemberService.Register(memberDto);
+
+            if (result != null) {
+                showSuccessModal = true;
+            } else {
+                errorMessage = "Email đã tồn tại";
+            }
+        } catch (Exception ex) {
+            errorMessage = ex.Message;
+        }
+
+        isLoading = false;
+    }
 }
 
-<h3>Register</h3>
+<div class="login-page m-0 p-0">
+    <div class="login-card">
+        <h3 class="login-title text-center">Đăng ký</h3>
+
+        <EditForm Model="@registerModel" OnValidSubmit="@HandleRegister" FormName="register_form">
+            <DataAnnotationsValidator />
+
+            @if (!string.IsNullOrEmpty(errorMessage)) {
+                <div class="alert alert-danger">
+                    @errorMessage
+                </div>
+            }
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <InputText id="email" class="form-control" @bind-Value="registerModel.Email" />
+                <ValidationMessage For="@(() => registerModel.Email)" class="text-danger small mt-1" />
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Mật khẩu</label>
+                <InputText type="password" id="password" class="form-control" @bind-Value="registerModel.Password" />
+                <ValidationMessage For="@(() => registerModel.Password)" class="text-danger small mt-1" />
+            </div>
+
+            <div class="mb-4">
+                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                <InputText type="password" id="confirmPassword" class="form-control" @bind-Value="registerModel.ConfirmPassword" />
+                <ValidationMessage For="@(() => registerModel.ConfirmPassword)" class="text-danger small mt-1" />
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 mb-3" disabled="@isLoading">
+                @if (isLoading) {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-2">Đang xử lý...</span>
+                } else {
+                    <span>Đăng ký</span>
+                }
+            </button>
+
+            <div class="text-center">
+                <p class="mb-0">
+                    Đã có tài khoản?
+                    <a href="/login" class="text-success text-decoration-none">Đăng nhập ngay!</a>
+                </p>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@if (showSuccessModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Đăng ký thành công</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn đã đăng ký thành công! Hãy đăng nhập để tiếp tục.</p>
+                </div>
+                <div class="modal-footer">
+                    <a href="/login" class="btn btn-success">Đến trang đăng nhập</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
 
 

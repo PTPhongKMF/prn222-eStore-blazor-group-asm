@@ -24,5 +24,11 @@ namespace BLL.Services {
 
             return mapper.Map<MemberDTO>(user);
         }
+
+        public async Task<MemberDTO?> Register(MemberDTO member) {
+            Member? user = await memberRepository.Register(mapper.Map<Member>(member));
+
+            return mapper.Map<MemberDTO>(user);
+        }
     }
 }
