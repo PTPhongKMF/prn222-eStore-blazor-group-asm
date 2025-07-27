@@ -6,27 +6,22 @@
 @inject IConfiguration Configuration
 @inject SessionService SessionService
 @using eStore.Components.Layout
+@using eStore.Components.Shared
 @rendermode InteractiveServer
 
 @using BLL.DTOs
 @using BLL.Interface
 @using eStore.Components.Services
 
-<PageTitle>Add New Product</PageTitle>
+<PageTitle>Thêm sản phẩm mới</PageTitle>
 
-@if (!IsAdmin)
-{
-    <div class="alert alert-danger text-center my-5" role="alert">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        Bạn không có quyền để thực hiện chức năng này.<br />
-    </div>
-}
-else
-{
+<AdminOnly>
     <div class="container py-4">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Add New Product</h4>
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Thêm sản phẩm mới
+                </h4>
             </div>
             <div class="card-body">
                 @if (!string.IsNullOrEmpty(errorMessage))
@@ -43,16 +38,16 @@ else
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="productName">Product Name <span class="text-danger">*</span></label>
-                                <InputText id="productName" class="form-control" @bind-Value="product.ProductName" placeholder="Enter product name" />
+                                <label class="form-label" for="productName">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <InputText id="productName" class="form-control" @bind-Value="product.ProductName" placeholder="Nhập tên sản phẩm" />
                                 <ValidationMessage For="@(() => product.ProductName)" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label" for="categoryId">Category <span class="text-danger">*</span></label>
+                                <label class="form-label" for="categoryId">Danh mục <span class="text-danger">*</span></label>
                                 <InputSelect id="categoryId" class="form-select" @bind-Value="product.CategoryId">
-                                    <option value="0">-- Select Category --</option>
+                                    <option value="0">-- Chọn danh mục --</option>
                                     @foreach (var cat in categories)
                                     {
                                         <option value="@cat.CategoryId">@cat.CategoryName</option>
@@ -66,21 +61,21 @@ else
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label" for="weight">Weight <span class="text-danger">*</span></label>
-                                <InputText id="weight" class="form-control" @bind-Value="product.Weight" placeholder="e.g. 500g" />
+                                <label class="form-label" for="weight">Trọng lượng <span class="text-danger">*</span></label>
+                                <InputText id="weight" class="form-control" @bind-Value="product.Weight" placeholder="VD: 500g" />
                                 <ValidationMessage For="@(() => product.Weight)" />
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label" for="unitPrice">Price (VND) <span class="text-danger">*</span></label>
+                                <label class="form-label" for="unitPrice">Giá (VND) <span class="text-danger">*</span></label>
                                 <InputNumber id="unitPrice" class="form-control" @bind-Value="product.UnitPrice" placeholder="0" />
                                 <ValidationMessage For="@(() => product.UnitPrice)" />
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label" for="unitsInStock">Stock <span class="text-danger">*</span></label>
+                                <label class="form-label" for="unitsInStock">Số lượng tồn kho <span class="text-danger">*</span></label>
                                 <InputNumber id="unitsInStock" class="form-control" @bind-Value="product.UnitsInStock" placeholder="0" />
                                 <ValidationMessage For="@(() => product.UnitsInStock)" />
                             </div>
@@ -89,20 +84,20 @@ else
 
                     <!-- Image Upload Section -->
                     <div class="mb-3">
-                        <label class="form-label">Product Image</label>
+                        <label class="form-label">Hình ảnh sản phẩm</label>
                         <div class="row">
                             <div class="col-md-8">
                                 <InputFile class="form-control" OnChange="OnImageSelected" accept=".jpg,.jpeg,.png,.webp" disabled="@isUploading" />
                                 <div class="form-text">
                                     <i class="bi bi-info-circle me-1"></i>
-                                    Format: JPG, JPEG, PNG, WEBP. Max 5MB.
+                                    Định dạng: JPG, JPEG, PNG, WEBP. Tối đa 5MB.
                                 </div>
                                 @if (isUploading)
                                 {
                                     <div class="mt-2">
                                         <div class="progress">
                                             <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%">
-                                                Processing file...
+                                                Đang xử lý file...
                                             </div>
                                         </div>
                                     </div>
@@ -112,10 +107,10 @@ else
                                 @if (!string.IsNullOrEmpty(imagePreviewUrl))
                                 {
                                     <div class="text-center">
-                                        <img src="@imagePreviewUrl" alt="Preview" class="img-thumbnail" style="max-height: 120px; max-width: 100%;" />
+                                        <img src="@imagePreviewUrl" alt="Xem trước" class="img-thumbnail" style="max-height: 120px; max-width: 100%;" />
                                         <div class="mt-1">
                                             <button type="button" class="btn btn-sm btn-outline-danger" @onclick="ClearImage" disabled="@isUploading">
-                                                <i class="bi bi-trash3"></i> Clear
+                                                <i class="bi bi-trash3"></i> Xóa
                                             </button>
                                         </div>
                                     </div>
@@ -124,7 +119,7 @@ else
                                 {
                                     <div class="text-center p-3 border rounded bg-light">
                                         <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
-                                        <div class="text-muted small">Image Preview</div>
+                                        <div class="text-muted small">Xem trước hình ảnh</div>
                                     </div>
                                 }
                             </div>
@@ -132,14 +127,14 @@ else
 
                         <!-- Alternative URL input -->
                         <div class="mt-3">
-                            <label class="form-label">Or enter image URL</label>
+                            <label class="form-label">Hoặc nhập URL hình ảnh</label>
                             <InputText class="form-control" @bind-Value="product.ImageUrl" placeholder="https://example.com/image.jpg" disabled="@(selectedImageFile != null)" />
                             <ValidationMessage For="@(() => product.ImageUrl)" />
                             @if (selectedImageFile != null)
                             {
                                 <div class="form-text text-info">
                                     <i class="bi bi-info-circle me-1"></i>
-                                    Selected file: @selectedImageFile.Name
+                                    File đã chọn: @selectedImageFile.Name
                                 </div>
                             }
                         </div>
@@ -149,7 +144,7 @@ else
                         <div class="form-check">
                             <InputCheckbox id="activeStatus" class="form-check-input" @bind-Value="product.ActiveStatus" />
                             <label class="form-check-label" for="activeStatus">
-                                Product is active
+                                Sản phẩm đang hoạt động
                             </label>
                         </div>
                     </div>
@@ -159,23 +154,23 @@ else
                             @if (isSubmitting)
                             {
                                 <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                <text>Creating</text>
+                                <text>Đang tạo</text>
                             }
                             else
                             {
                                 <i class="bi bi-plus-circle me-1"></i>
-                                <text>Add Product</text>
+                                <text>Thêm sản phẩm</text>
                             }
                         </button>
                         <button type="button" class="btn btn-secondary" @onclick="OnCancel" disabled="@(isSubmitting || isUploading)">
-                            Cancel
+                            Hủy
                         </button>
                     </div>
                 </EditForm>
             </div>
         </div>
     </div>
-}
+</AdminOnly>
 
 @code {
     private ProductCreateDTO product = new();
@@ -186,24 +181,15 @@ else
     private string? imagePreviewUrl;
     private IBrowserFile? selectedImageFile;
 
-    private bool IsAdmin { get; set; }
-    private string AdminEmail => "admin@estore.com";
-
     protected override async Task OnInitializedAsync()
     {
-        var user = SessionService.GetUserSession();
-        IsAdmin = user != null && user.Email.Equals(AdminEmail, StringComparison.OrdinalIgnoreCase);
-
-        if (IsAdmin)
+        try
         {
-            try
-            {
-                categories = await CategoryService.GetAllCategoriesAsync();
-            }
-            catch (Exception ex)
-            {
-                errorMessage = $"Error loading categories: {ex.Message}";
-            }
+            categories = await CategoryService.GetAllCategoriesAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi tải danh mục: {ex.Message}";
         }
     }
 
@@ -221,14 +207,14 @@ else
             const long maxFileSize = 5 * 1024 * 1024;
             if (file.Size > maxFileSize)
             {
-                errorMessage = "File size cannot exceed 5MB";
+                errorMessage = "Kích thước file không được vượt quá 5MB";
                 return;
             }
 
             var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/webp" };
             if (!allowedTypes.Contains(file.ContentType.ToLower()))
             {
-                errorMessage = "Only image files are accepted (JPG, PNG, WEBP)";
+                errorMessage = "Chỉ chấp nhận file hình ảnh (JPG, PNG, WEBP)";
                 return;
             }
 
@@ -236,7 +222,7 @@ else
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
             if (!allowedExtensions.Contains(extension))
             {
-                errorMessage = $"File format not supported: {extension}";
+                errorMessage = $"Định dạng file không được hỗ trợ: {extension}";
                 return;
             }
 
@@ -247,7 +233,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error processing file: {ex.Message}";
+            errorMessage = $"Lỗi khi xử lý file: {ex.Message}";
             ClearImage();
         }
         finally
@@ -274,7 +260,7 @@ else
         catch (Exception ex)
         {
             imagePreviewUrl = null;
-            throw new Exception($"Cannot create preview: {ex.Message}");
+            throw new Exception($"Không thể tạo xem trước: {ex.Message}");
         }
     }
 
@@ -302,7 +288,7 @@ else
                 }
                 else
                 {
-                    errorMessage = $"Upload failed: {uploadResult.Message}";
+                    errorMessage = $"Upload thất bại: {uploadResult.Message}";
                     return;
                 }
             }
@@ -314,12 +300,12 @@ else
             }
             else
             {
-                errorMessage = $"Create product failed: {result.Message}";
+                errorMessage = $"Tạo sản phẩm thất bại: {result.Message}";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Unexpected error: {ex.Message}";
+            errorMessage = $"Lỗi không mong muốn: {ex.Message}";
         }
         finally
         {
@@ -329,7 +315,7 @@ else
 
     private void HandleInvalidSubmit()
     {
-        errorMessage = "Please check the entered information!";
+        errorMessage = "Vui lòng kiểm tra lại thông tin đã nhập!";
     }
 
     private void OnCancel()

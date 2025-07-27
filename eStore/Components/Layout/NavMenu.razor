@@ -1,20 +1,19 @@
 ﻿@using eStore.Components.Layout
+@using eStore.Components.Services
+@inject NavigationManager NavigationManager
+@inject SessionService SessionService
 
 @code {
-    [CascadingParameter]
-    private MainLayout Layout { get; set; } = null!;
+    [CascadingParameter] private MainLayout Layout { get; set; } = null!;
 
-    private string AdminEmail => "admin@estore.com";
+    private bool IsAdmin => AuthHelper.IsAdmin(Layout.UserSession);
+    private string DisplayName => AuthHelper.GetDisplayName(Layout.UserSession);
 
-    private bool IsAdmin =>
-        Layout.UserSession != null &&
-        Layout.UserSession.Email.Equals(AdminEmail, StringComparison.OrdinalIgnoreCase);
-
-    private string GetDisplayName()
+    private void HandleLogout()
     {
-        if (Layout.UserSession?.Email == null) return string.Empty;
-        int atIndex = Layout.UserSession.Email.IndexOf('@');
-        return atIndex > 0 ? Layout.UserSession.Email[..atIndex] : Layout.UserSession.Email;
+        Layout.SetUserSession(null);
+        SessionService.ClearUserSession();
+        NavigationManager.NavigateTo("/", true);
     }
 }
 
@@ -23,7 +22,7 @@
         <div class="row w-100 g-0">
             <!-- Left section - Brand -->
             <div class="col-4 d-flex align-items-center">
-                <a class="navbar-brand text-white fs-4 fw-medium ps-4 m-0" href="">FU Ecommerce Store</a>
+                <a class="navbar-brand text-white fs-4 fw-medium ps-4 m-0" href="">Cửa Hàng Điện Tử FU</a>
             </div>
 
             <!-- Middle section - Navigation -->
@@ -34,12 +33,18 @@
                 @if (IsAdmin)
                 {
                     <NavLink class="nav-link text-white px-3 py-2" href="products">
-                        Sản Phẩm
+                        Quản lý Sản Phẩm
+                    </NavLink>
+                    <NavLink class="nav-link text-white px-3 py-2" href="admin/members">
+                        Quản lý Thành Viên
                     </NavLink>
                 }
-                <NavLink class="nav-link text-white px-3 py-2" href="categories">
-                    Danh Mục
-                </NavLink>
+                else if (Layout.UserSession != null)
+                {
+                    <NavLink class="nav-link text-white px-3 py-2" href="categories">
+                        Danh Mục
+                    </NavLink>
+                }
             </div>
 
             <!-- Right section - User -->
@@ -47,22 +52,31 @@
                 @if (Layout.UserSession != null)
                 {
                     <div class="dropdown">
-                        <a class="nav-link text-white px-3 py-2 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="bi bi-person-fill" aria-hidden="true"></span>
-                            @GetDisplayName()
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Mục 1</a></li>
-                            <li><a class="dropdown-item" href="#">Mục 2</a></li>
-                            <li><a class="dropdown-item" href="#">Mục 3</a></li>
+                        <button class="btn nav-link text-white px-3 py-2 dropdown-toggle" 
+                                type="button" 
+                                id="userDropdown"
+                                data-bs-toggle="dropdown" 
+                                aria-expanded="false"
+                                style="background: none; border: none;">
+                            <i class="bi bi-person-fill me-1"></i>@DisplayName
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" href="/profile">
+                                    <i class="bi bi-person me-2"></i>Thông tin cá nhân
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button class="dropdown-item" type="button" @onclick="HandleLogout">
+                                <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                            </button></li>
                         </ul>
                     </div>
                 }
                 else
                 {
                     <NavLink class="btn btn-custom-yellow" href="login">
-                        <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span>
-                        Đăng nhập / Đăng ký
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Đăng nhập / Đăng ký
                     </NavLink>
                 }
             </div>

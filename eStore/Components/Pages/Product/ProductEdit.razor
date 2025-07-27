@@ -4,6 +4,7 @@
 @inject IFileStorageService FileStorageService
 @inject NavigationManager NavigationManager
 @inject SessionService SessionService
+@using eStore.Components.Shared
 @rendermode InteractiveServer
 
 @using BLL.DTOs
@@ -12,19 +13,13 @@
 
 <PageTitle>Cập nhật sản phẩm</PageTitle>
 
-@if (!IsAdmin)
-{
-    <div class="alert alert-danger text-center my-5" role="alert">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        Bạn không có quyền để thực hiện chức năng này.<br />
-    </div>
-}
-else
-{
+<AdminOnly>
     <div class="container py-4">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Cập nhật sản phẩm</h4>
+                <h4 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>Cập nhật sản phẩm
+                </h4>
             </div>
             <div class="card-body">
                 @if (isLoading)
@@ -192,7 +187,7 @@ else
             </div>
         </div>
     </div>
-}
+</AdminOnly>
 
 @code {
     [Parameter] public int id { get; set; }
@@ -206,46 +201,33 @@ else
     private IBrowserFile? selectedImageFile;
     private string? originalImageUrl;
 
-    private bool IsAdmin { get; set; }
-    private string AdminEmail => "admin@estore.com";
-
     protected override async Task OnInitializedAsync()
     {
-        var user = SessionService.GetUserSession();
-        IsAdmin = user != null && user.Email.Equals(AdminEmail, StringComparison.OrdinalIgnoreCase);
-
-        if (IsAdmin)
+        try
         {
-            try
+            categories = await CategoryService.GetAllCategoriesAsync();
+            var dto = await ProductService.GetProductByIdAsync(id);
+            if (dto != null)
             {
-                categories = await CategoryService.GetAllCategoriesAsync();
-                var dto = await ProductService.GetProductByIdAsync(id);
-                if (dto != null)
+                product = new ProductUpdateDTO
                 {
-                    product = new ProductUpdateDTO
-                    {
-                        ProductId = dto.ProductId,
-                        ProductName = dto.ProductName,
-                        CategoryId = dto.CategoryId,
-                        Weight = dto.Weight,
-                        UnitPrice = dto.UnitPrice,
-                        UnitsInStock = dto.UnitsInStock,
-                        ImageUrl = dto.ImageUrl,
-                        ActiveStatus = dto.ActiveStatus
-                    };
-                    originalImageUrl = dto.ImageUrl;
-                }
-            }
-            catch (Exception ex)
-            {
-                errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
-            }
-            finally
-            {
-                isLoading = false;
+                    ProductId = dto.ProductId,
+                    ProductName = dto.ProductName,
+                    CategoryId = dto.CategoryId,
+                    Weight = dto.Weight,
+                    UnitPrice = dto.UnitPrice,
+                    UnitsInStock = dto.UnitsInStock,
+                    ImageUrl = dto.ImageUrl,
+                    ActiveStatus = dto.ActiveStatus
+                };
+                originalImageUrl = dto.ImageUrl;
             }
         }
-        else
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+        }
+        finally
         {
             isLoading = false;
         }

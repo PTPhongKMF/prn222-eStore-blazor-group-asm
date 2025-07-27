@@ -2,27 +2,26 @@
 @using BLL.DTOs
 
 @code {
-    [Inject]
-    private SessionService SessionService { get; set; } = null!;
+    [Inject] private SessionService SessionService { get; set; } = null!;
 
     public MemberDTO? UserSession { get; private set; }
 
-    protected override void OnInitialized()
-    {
-        UserSession = SessionService.GetUserSession();
-    }
+    protected override void OnInitialized() => UserSession = SessionService.GetUserSession();
 
     public void SetUserSession(MemberDTO? user)
     {
         UserSession = user;
         if (user != null)
-        {
             SessionService.SetUserSession(user);
-        }
         else
-        {
             SessionService.ClearUserSession();
-        }
+        StateHasChanged();
+    }
+
+    public void RefreshUserSession()
+    {
+        UserSession = SessionService.GetUserSession();
+        StateHasChanged();
     }
 }
 

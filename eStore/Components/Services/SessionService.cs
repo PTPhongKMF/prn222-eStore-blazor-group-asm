@@ -9,26 +9,16 @@ namespace eStore.Components.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private const string USER_KEY = "CurrentUser";
 
-        public SessionService(IHttpContextAccessor httpContextAccessor)
-        {
+        public SessionService(IHttpContextAccessor httpContextAccessor) => 
             _httpContextAccessor = httpContextAccessor;
-        }
 
-        public void SetUserSession(MemberDTO user)
-        {
-            var session = _httpContextAccessor.HttpContext?.Session;
-            if (session != null)
-            {
-                session.SetString(USER_KEY, JsonSerializer.Serialize(user));
-            }
-        }
+        public void SetUserSession(MemberDTO user) => 
+            _httpContextAccessor.HttpContext?.Session?.SetString(USER_KEY, JsonSerializer.Serialize(user));
 
         public MemberDTO? GetUserSession()
         {
-            var session = _httpContextAccessor.HttpContext?.Session;
-            var userJson = session?.GetString(USER_KEY);
-            
-            return userJson == null ? null : JsonSerializer.Deserialize<MemberDTO>(userJson);
+            var userJson = _httpContextAccessor.HttpContext?.Session?.GetString(USER_KEY);
+            return userJson != null ? JsonSerializer.Deserialize<MemberDTO>(userJson) : null;
         }
 
         public void ClearUserSession()

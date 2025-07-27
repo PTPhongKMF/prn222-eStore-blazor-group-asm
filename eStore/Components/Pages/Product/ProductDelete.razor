@@ -1,111 +1,107 @@
 ﻿@page "/products/delete/{id:int}"
 @rendermode InteractiveServer
 @using BLL.Interface
+@using eStore.Components.Shared
 @inject IProductService ProductService
 @inject NavigationManager NavigationManager
 @inject SessionService SessionService
 
 <PageTitle>Xóa sản phẩm</PageTitle>
 
-@if (!IsAdmin)
-{
-    <div class="alert alert-danger text-center my-5" role="alert">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        Bạn không có quyền để thực hiện chức năng này.<br />
-    </div>
-}
-else if (isLoading)
-{
-    <div class="text-center p-5">
-        <div class="spinner-border text-danger"></div>
-        <p>Đang tải dữ liệu...</p>
-    </div>
-}
-else if (product == null)
-{
-    <div class="alert alert-danger">Không tìm thấy sản phẩm.</div>
-}
-else
-{
-    <div class="container mt-4">
-        <div class="card shadow">
-            <div class="card-header bg-danger text-white">
-                <h3 class="card-title">
-                    <i class="bi bi-exclamation-octagon me-2"></i>
-                    Xác nhận xóa sản phẩm
-                </h3>
-            </div>
-            <div class="card-body">
-                @if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    <div class="alert alert-danger text-center my-3" role="alert">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        @errorMessage
-                    </div>
-                }
-                <div class="alert alert-warning">
-                    <h5>Bạn có chắc chắn muốn xóa sản phẩm này?</h5>
-                    <p class="fw-bold">Hành động này sẽ ngừng bán sản phẩm nhưng vẫn giữ lại dữ liệu.</p>
+<AdminOnly>
+    @if (isLoading)
+    {
+        <div class="text-center p-5">
+            <div class="spinner-border text-danger"></div>
+            <p>Đang tải dữ liệu...</p>
+        </div>
+    }
+    else if (product == null)
+    {
+        <div class="alert alert-danger">Không tìm thấy sản phẩm.</div>
+    }
+    else
+    {
+        <div class="container mt-4">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title">
+                        <i class="bi bi-exclamation-octagon me-2"></i>
+                        Xác nhận xóa sản phẩm
+                    </h3>
                 </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger text-center my-3" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            @errorMessage
+                        </div>
+                    }
+                    <div class="alert alert-warning">
+                        <h5>Bạn có chắc chắn muốn xóa sản phẩm này?</h5>
+                        <p class="fw-bold">Hành động này sẽ ngừng bán sản phẩm nhưng vẫn giữ lại dữ liệu.</p>
+                    </div>
 
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <h4>@product.ProductName</h4>
-                        <p class="text-muted">ID: @product.ProductId</p>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h4>@product.ProductName</h4>
+                            <p class="text-muted">ID: @product.ProductId</p>
 
-                        <div class="mt-3">
-                            <h6>Thông tin chi tiết:</h6>
-                            <ul class="list-group">
-                                <li class="list-group-item">
-                                    <strong>Danh mục:</strong> @product.CategoryName
-                                </li>
-                                <li class="list-group-item">
-                                    <strong>Giá:</strong> @product.UnitPrice.ToString("N0") đ
-                                </li>
-                                <li class="list-group-item">
-                                    <strong>Tồn kho:</strong> @product.UnitsInStock
-                                </li>
-                                <li class="list-group-item">
-                                    <strong>Trọng lượng:</strong> @product.Weight
-                                </li>
-                            </ul>
+                            <div class="mt-3">
+                                <h6>Thông tin chi tiết:</h6>
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <strong>Danh mục:</strong> @product.CategoryName
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Giá:</strong> @product.UnitPrice.ToString("N0") đ
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Tồn kho:</strong> @product.UnitsInStock
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Trọng lượng:</strong> @product.Weight
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 text-center">
+                            @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl"
+                                     class="img-fluid rounded mb-3"
+                                     alt="Ảnh sản phẩm"
+                                     style="max-height: 300px" />
+                            }
+                            else
+                            {
+                                <div class="bg-light border rounded d-flex align-items-center justify-content-center"
+                                     style="height: 200px; width: 100%">
+                                    <span class="text-muted">Không có hình ảnh</span>
+                                </div>
+                            }
                         </div>
                     </div>
 
-                    <div class="col-md-6 text-center">
-                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                        {
-                            <img src="@product.ImageUrl"
-                                 class="img-fluid rounded mb-3"
-                                 alt="Ảnh sản phẩm"
-                                 style="max-height: 300px" />
-                        }
-                        else
-                        {
-                            <div class="bg-light border rounded d-flex align-items-center justify-content-center"
-                                 style="height: 200px; width: 100%">
-                                <span class="text-muted">Không có hình ảnh</span>
-                            </div>
-                        }
+                    <div class="d-flex justify-content-end gap-2">
+                        <button class="btn btn-secondary" @onclick="OnCancel">
+                            <i class="bi bi-x-circle me-2"></i>Hủy bỏ
+                        </button>
+                        <button class="btn btn-danger" @onclick="DeleteProduct" disabled="@isDeleting">
+                            @if (isDeleting)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                            }
+                            <i class="bi bi-trash3 me-2"></i>Xác nhận xóa
+                        </button>
                     </div>
-                </div>
-
-                <div class="d-flex justify-content-end gap-2">
-                    <button class="btn btn-secondary" @onclick="OnCancel">
-                        <i class="bi bi-x-circle me-2"></i>Hủy bỏ
-                    </button>
-                    <button class="btn btn-danger" @onclick="DeleteProduct" disabled="@isDeleting">
-                        @if (isDeleting)
-                        {
-                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                        }
-                        <i class="bi bi-trash3 me-2"></i>Xác nhận xóa
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
-}
+    }
+</AdminOnly>
 
 @code {
     [Parameter] public int id { get; set; }
@@ -114,18 +110,9 @@ else
     private bool isDeleting = false;
     private string? errorMessage;
 
-    private bool IsAdmin { get; set; }
-    private string AdminEmail => "admin@estore.com";
-
     protected override async Task OnInitializedAsync()
     {
-        var user = SessionService.GetUserSession();
-        IsAdmin = user != null && user.Email.Equals(AdminEmail, StringComparison.OrdinalIgnoreCase);
-
-        if (IsAdmin)
-        {
-            product = await ProductService.GetProductByIdAsync(id);
-        }
+        product = await ProductService.GetProductByIdAsync(id);
         isLoading = false;
     }
 
