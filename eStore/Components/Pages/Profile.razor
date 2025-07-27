@@ -1,10 +1,10 @@
-@page "/profile"
+﻿@page "/profile"
 @inject SessionService SessionService
 @inject NavigationManager NavigationManager
 @using BLL.DTOs
 @using eStore.Components.Layout
 
-<PageTitle>Th�ng tin c� nh�n</PageTitle>
+<PageTitle>Thông tin cá nhân</PageTitle>
 
 @code {
     [CascadingParameter]
@@ -23,7 +23,7 @@
 {
     <div class="alert alert-warning text-center my-5">
         <i class="bi bi-exclamation-triangle me-2"></i>
-        Vui l�ng ??ng nh?p ?? xem th�ng tin c� nh�n.
+        Vui lòng đăng nhập để xem thông tin cá nhân.
     </div>
 }
 else
@@ -34,7 +34,7 @@ else
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
                         <h4 class="mb-0">
-                            <i class="bi bi-person me-2"></i>Th�ng tin c� nh�n
+                            <i class="bi bi-person me-2"></i>Thông tin cá nhân
                         </h4>
                     </div>
                     <div class="card-body">
@@ -62,14 +62,14 @@ else
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">T�n c�ng ty:</label>
-                                    <p class="form-control-plaintext">@(Layout.UserSession.CompanyName ?? "Ch?a c?p nh?t")</p>
+                                    <label class="form-label fw-bold">Tên công ty:</label>
+                                    <p class="form-control-plaintext">@(Layout.UserSession.CompanyName ?? "Chưa cập nhật")</p>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Th�nh ph?:</label>
-                                    <p class="form-control-plaintext">@(Layout.UserSession.City ?? "Ch?a c?p nh?t")</p>
+                                    <label class="form-label fw-bold">Thành phần:</label>
+                                    <p class="form-control-plaintext">@(Layout.UserSession.City ?? "Chưa cập nhật")</p>
                                 </div>
                             </div>
                         </div>
@@ -77,15 +77,15 @@ else
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Qu?c gia:</label>
-                                    <p class="form-control-plaintext">@(Layout.UserSession.Country ?? "Ch?a c?p nh?t")</p>
+                                    <label class="form-label fw-bold">Quốc gia:</label>
+                                    <p class="form-control-plaintext">@(Layout.UserSession.Country ?? "Chưa cập nhật")</p>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="mt-4">
                             <a href="/" class="btn btn-secondary">
-                                <i class="bi bi-house me-2"></i>V? trang ch?
+                                <i class="bi bi-house me-2"></i>Về trang chủ
                             </a>
                         </div>
                     </div>
