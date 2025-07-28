@@ -12,17 +12,10 @@
     private string DisplayName => AuthHelper.GetDisplayName(SessionService.GetUserSession());
 
     private string GetDisplayName() {
-    var user = SessionService.GetUserSession();
-    if (user?.Email == null) return string.Empty;
-    int atIndex = user.Email.IndexOf('@');
-    return atIndex > 0 ? user.Email[..atIndex] : user.Email;
-    }
-
-    private void HandleLogout()
-    {
-        Layout.SetUserSession(null);
-        SessionService.ClearUserSession();
-        NavigationManager.NavigateTo("/", true);
+        var user = SessionService.GetUserSession();
+        if (user?.Email == null) return string.Empty;
+        int atIndex = user.Email.IndexOf('@');
+        return atIndex > 0 ? user.Email[..atIndex] : user.Email;
     }
 
     private void HandleLogout() {
@@ -44,35 +37,33 @@
                 <NavLink class="nav-link text-white px-3 py-2" href="" Match="NavLinkMatch.All">
                     Trang Chủ
                 </NavLink>
-                @if (IsAdmin)
-                {
-                    <NavLink class="nav-link text-white px-3 py-2" href="products">
+                @if (IsAdmin) {
+                    <NavLink class="nav-link text-white px-3 py-2" href="/admin/products">
                         Quản lý Sản Phẩm
                     </NavLink>
                     <NavLink class="nav-link text-white px-3 py-2" href="admin/members">
                         Quản lý Thành Viên
                     </NavLink>
                 }
-                else if (Layout.UserSession != null)
-                {
-                    <NavLink class="nav-link text-white px-3 py-2" href="categories">
-                        Danh Mục
-                    </NavLink>
-                }
+                <NavLink class="nav-link text-white px-3 py-2" href="products">
+                    Sản Phẩm
+                </NavLink>
+                <NavLink class="nav-link text-white px-3 py-2" href="categories">
+                    Danh Mục
+                </NavLink>
             </div>
 
             <!-- Right section - User -->
             <div class="col-4 d-flex align-items-center justify-content-end pe-4">
-                @if (SessionService.GetUserSession() != null)
-                {
+                @if (SessionService.GetUserSession() != null) {
                     <NavLink href="/cart" class="btn btn-outline-light me-3 position-relative">
                         <i class="bi bi-cart3 me-1"></i>Giỏ hàng
                     </NavLink>
                     <div class="dropdown">
-                        <button class="btn nav-link text-white px-3 py-2 dropdown-toggle" 
-                                type="button" 
+                        <button class="btn nav-link text-white px-3 py-2 dropdown-toggle"
+                                type="button"
                                 id="userDropdown"
-                                data-bs-toggle="dropdown" 
+                                data-bs-toggle="dropdown"
                                 aria-expanded="false"
                                 style="background: none; border: none;">
                             <i class="bi bi-person-fill me-1"></i>@DisplayName
@@ -84,9 +75,11 @@
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><button class="dropdown-item" type="button" @onclick="HandleLogout">
-                                <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
-                            </button></li>
+                            <li>
+                                <button class="dropdown-item" type="button" @onclick="HandleLogout">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                                </button>
+                            </li>
                         </ul>
                     </div>
                 } else {

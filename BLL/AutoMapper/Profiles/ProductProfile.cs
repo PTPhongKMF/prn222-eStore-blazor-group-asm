@@ -8,16 +8,13 @@ public class ProductProfile : Profile
 {
     public ProductProfile()
     {
-        CreateMap<Product, ProductDTO>()
-               .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName));
+        CreateMap<Product, ProductDTO>();
 
         CreateMap<Product, ProductCreateDTO>();
         CreateMap<Product, ProductUpdateDTO>();
 
         // DTO to Entity mappings
-        CreateMap<ProductDTO, Product>()
-            .ForMember(dest => dest.Category, opt => opt.Ignore())
-            .ForMember(dest => dest.OrderDetails, opt => opt.Ignore());
+        CreateMap<ProductDTO, Product>();
 
         CreateMap<ProductCreateDTO, Product>()
             .ForMember(dest => dest.ProductId, opt => opt.Ignore())

@@ -22,7 +22,7 @@ namespace BLL.Services {
         IdDescending
     }
 
-    public class ProductService {
+    public class ProductService : IProductService {
         private readonly ProductRepository productRepository;
         private readonly CategoryRepository categoryRepository;
         private readonly IMapper mapper;

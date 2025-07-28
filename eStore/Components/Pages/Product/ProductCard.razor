@@ -1,8 +1,22 @@
 @using BLL.DTOs
 
 @code {
-    [Parameter]
-    public ProductDTO Product { get; set; } = null!;
+    [Parameter] public ProductDTO Product { get; set; } = null!;
+    [Inject] private SessionService SessionService { get; set; } = null!;
+    [Inject] private CartService CartService { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+
+    private async Task AddToCart()
+    {
+        var user = SessionService.GetUserSession();
+        if (user == null)
+        {
+            NavigationManager.NavigateTo("/login", true);
+            return;
+        }
+        await CartService.AddToCartAsync(user.MemberId, Product.ProductId, 1);
+        // Optionally: show a toast or feedback
+    }
 }
 
 <div class="card h-100">
@@ -22,7 +36,7 @@
             <a href="/products/detail/@Product.ProductId" class="btn btn-outline-primary btn-icon">
                 <i class="bi bi-info-circle"></i>
             </a>
-            <button class="btn btn-primary flex-grow-1">
+            <button class="btn btn-primary flex-grow-1" @onclick="AddToCart">
                 Thêm vào giỏ
             </button>
         </div>

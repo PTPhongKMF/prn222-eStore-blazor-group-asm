@@ -1,4 +1,4 @@
-﻿@page "/products"
+﻿@page "/admin/products"
 @using eStore.Components.Layout
 @using eStore.Components.Shared
 @inherits ProductListBase
@@ -81,7 +81,7 @@
                                 {
                                     <tr>
                                         <td>@product.ProductName</td>
-                                        <td>@product.CategoryName</td>
+                                        <td>@product.Category.CategoryName</td>
                                         <td>@product.Weight</td>
                                         <td>@product.UnitPrice.ToString("N0") đ</td>
                                         <td>

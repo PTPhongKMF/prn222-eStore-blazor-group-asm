@@ -143,12 +143,8 @@ namespace DAL.Repositories {
         }
 
         // Get products with low stock
-        public async Task<List<Product>> GetLowStockProductsAsync(int threshold = 10)
-        {
+        public async Task<List<Product>> GetLowStockProductsAsync(int threshold = 10) {
             return await dbContext.Product
-                .Where(p => p.CategoryId == categoryId 
-                        && p.ProductId != excludeProductId 
-                        && p.ActiveStatus)
                 .Include(p => p.Category)
                 .Where(p => p.UnitsInStock <= threshold && p.ActiveStatus)
                 .OrderBy(p => p.UnitsInStock)
