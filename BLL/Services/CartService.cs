@@ -52,5 +52,11 @@ namespace BLL.Services
         {
             return await cartRepository.RemoveFromCartAsync(memberId, productId);
         }
+
+        // Clear all cart items for a member
+        public async Task<bool> ClearCartAsync(int memberId)
+        {
+            return await cartRepository.ClearCartAsync(memberId);
+        }
     }
 }

@@ -7,7 +7,7 @@
 @using BLL.Services
 @using eStore.Components.Layout
 
-<PageTitle>Add New Member</PageTitle>
+<PageTitle>Thêm Member Mới</PageTitle>
 
 @code {
     [CascadingParameter]
@@ -37,7 +37,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error creating member: {ex.Message}";
+            errorMessage = $"Lỗi khi tạo member: {ex.Message}";
         }
         finally
         {
@@ -47,16 +47,16 @@
 
     private void HandleInvalidSubmit()
     {
-        errorMessage = "Please correct the validation errors below.";
+        errorMessage = "Vui lòng sửa các lỗi xác thực bên dưới.";
     }
 }
 
 <div class="container py-4">
     <div class="card shadow-sm">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Add New Member</h4>
+            <h4 class="mb-0">Thêm Member Mới</h4>
             <a href="/admin/members" class="btn btn-light btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>Back to List
+                <i class="bi bi-arrow-left me-1"></i>Về danh sách
             </a>
         </div>
         <div class="card-body">
@@ -75,14 +75,14 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <InputText class="form-control" @bind-Value="member.Email" placeholder="Enter email address" />
+                            <InputText class="form-control" @bind-Value="member.Email" placeholder="Nhập địa chỉ email" />
                             <ValidationMessage For="@(() => member.Email)" />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label">Password <span class="text-danger">*</span></label>
-                            <InputText type="password" class="form-control" @bind-Value="member.Password" placeholder="Enter password" />
+                            <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                            <InputText type="password" class="form-control" @bind-Value="member.Password" placeholder="Nhập mật khẩu" />
                             <ValidationMessage For="@(() => member.Password)" />
                         </div>
                     </div>
@@ -91,35 +91,35 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label">Company Name</label>
-                            <InputText class="form-control" @bind-Value="member.CompanyName" placeholder="Enter company name" />
+                            <label class="form-label">Tên công ty</label>
+                            <InputText class="form-control" @bind-Value="member.CompanyName" placeholder="Nhập tên công ty" />
                             <ValidationMessage For="@(() => member.CompanyName)" />
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="mb-3">
-                            <label class="form-label">City</label>
-                            <InputText class="form-control" @bind-Value="member.City" placeholder="Enter city" />
+                            <label class="form-label">Thành phố</label>
+                            <InputText class="form-control" @bind-Value="member.City" placeholder="Nhập thành phố" />
                             <ValidationMessage For="@(() => member.City)" />
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="mb-3">
-                            <label class="form-label">Country</label>
-                            <InputText class="form-control" @bind-Value="member.Country" placeholder="Enter country" />
+                            <label class="form-label">Quốc gia</label>
+                            <InputText class="form-control" @bind-Value="member.Country" placeholder="Nhập quốc gia" />
                             <ValidationMessage For="@(() => member.Country)" />
                         </div>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
-                    <a href="/admin/members" class="btn btn-secondary">Cancel</a>
+                    <a href="/admin/members" class="btn btn-secondary">Hủy</a>
                     <button type="submit" class="btn btn-primary" disabled="@isLoading">
                         @if (isLoading)
                         {
                             <span class="spinner-border spinner-border-sm me-1" role="status"></span>
                         }
-                        <i class="bi bi-plus-circle me-1"></i>Create Member
+                        <i class="bi bi-plus-circle me-1"></i>Tạo Member
                     </button>
                 </div>
             </EditForm>
