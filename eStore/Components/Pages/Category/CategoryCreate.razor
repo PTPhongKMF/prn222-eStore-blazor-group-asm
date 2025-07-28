@@ -41,6 +41,7 @@
                 <EditForm Model="@category" OnValidSubmit="HandleValidSubmit" OnInvalidSubmit="HandleInvalidSubmit" FormName="CategoryCreate">
                     <DataAnnotationsValidator />
 
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label" for="categoryName">Tên danh mục <span class="text-danger">*</span></label>
@@ -48,6 +49,18 @@
                                 <ValidationMessage For="@(() => category.CategoryName)" />
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="imageUrl">URL hình ảnh</label>
+                                <InputText id="imageUrl" class="form-control" @bind-Value="category.ImageUrl" placeholder="https://example.com/image.jpg" />
+                                <ValidationMessage For="@(() => category.ImageUrl)" />
+                                <div class="form-text">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Nhập URL hình ảnh cho danh mục (tùy chọn)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="description">Mô tả</label>
@@ -58,6 +71,20 @@
                             Mô tả chi tiết về danh mục sản phẩm (tối đa 500 ký tự)
                         </div>
                     </div>
+
+                    <!-- Image Preview -->
+                    @if (!string.IsNullOrEmpty(category.ImageUrl))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Xem trước hình ảnh</label>
+                            <div class="text-center">
+                                <img src="@category.ImageUrl" alt="Xem trước" 
+                                     class="img-thumbnail" 
+                                     style="max-height: 200px; max-width: 100%;"
+                                     @onerror="OnImageError" />
+                            </div>
+                        </div>
+                    }
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-success" disabled="@isSubmitting">
@@ -83,7 +110,7 @@
 </AdminOnly>
 
 @code {
-    private CategoryCreateDTO category = new();
+    private CategoryDTO category = new();
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
     private bool isSubmitting = false;
@@ -103,7 +130,7 @@
             {
                 successMessage = result.Message;
                 // Clear form
-                category = new CategoryCreateDTO();
+                category = new CategoryDTO();
                 
                 // Optional: Navigate to category list after a delay
                 await Task.Delay(2000);

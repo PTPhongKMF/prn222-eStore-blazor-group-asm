@@ -9,8 +9,8 @@ namespace BLL.Interface
         Task<List<CategoryDTO>> GetAllCategoriesAsync();
         Task<List<CategoryDTO>> GetAllCategories();
         Task<CategoryDTO?> GetCategoryByIdAsync(int categoryId);
-        Task<(bool Success, string Message, CategoryDTO? Category)> CreateCategoryAsync(CategoryCreateDTO categoryCreateDto);
-        Task<(bool Success, string Message, CategoryDTO? Category)> UpdateCategoryAsync(CategoryUpdateDTO categoryUpdateDto);
+        Task<(bool Success, string Message, CategoryDTO? Category)> CreateCategoryAsync(CategoryDTO categoryDto);
+        Task<(bool Success, string Message, CategoryDTO? Category)> UpdateCategoryAsync(CategoryDTO categoryDto);
         Task<(bool Success, string Message)> DeleteCategoryAsync(int categoryId);
     }
 }

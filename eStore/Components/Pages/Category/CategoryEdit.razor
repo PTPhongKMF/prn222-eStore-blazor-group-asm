@@ -71,6 +71,17 @@
                                     <ValidationMessage For="@(() => category.CategoryName)" />
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="imageUrl">URL hình ảnh</label>
+                                    <InputText id="imageUrl" class="form-control" @bind-Value="category.ImageUrl" placeholder="https://example.com/image.jpg" />
+                                    <ValidationMessage For="@(() => category.ImageUrl)" />
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Nhập URL hình ảnh cho danh mục (tùy chọn)
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -80,6 +91,30 @@
                             <ValidationMessage For="@(() => category.Description)" />
                             <div class="form-text">
                                 Mô tả chi tiết về danh mục sản phẩm (tối đa 500 ký tự)
+                            </div>
+                        </div>
+
+                        <!-- Image Preview -->
+                        @if (!string.IsNullOrEmpty(category.ImageUrl))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Xem trước hình ảnh</label>
+                                <div class="text-center">
+                                    <img src="@category.ImageUrl" alt="Xem trước" 
+                                         class="img-thumbnail" 
+                                         style="max-height: 200px; max-width: 100%;"
+                                         @onerror="OnImageError" />
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Category Info -->
+                        <div class="mb-3">
+                            <div class="alert alert-info">
+                                <h6 class="alert-heading">Thông tin danh mục</h6>
+                                <ul class="mb-0">
+                                    <li><strong>ID:</strong> @category.CategoryId</li>
+                                </ul>
                             </div>
                         </div>
 
@@ -113,7 +148,7 @@
 @code {
     [Parameter] public int CategoryId { get; set; }
 
-    private CategoryUpdateDTO? category;
+    private CategoryDTO? category;
     private string errorMessage = string.Empty;
     private string successMessage = string.Empty;
     private bool isSubmitting = false;
@@ -132,18 +167,7 @@
             isLoading = true;
             errorMessage = string.Empty;
 
-            var categoryDto = await CategoryService.GetCategoryByIdAsync(CategoryId);
-            
-            if (categoryDto != null)
-            {
-                category = new CategoryUpdateDTO
-                {
-                    CategoryId = categoryDto.CategoryId,
-                    CategoryName = categoryDto.CategoryName,
-                    Description = categoryDto.Description,
-                    ImageUrl = categoryDto.ImageUrl
-                };
-            }
+            category = await CategoryService.GetCategoryByIdAsync(CategoryId);
         }
         catch (Exception ex)
         {
@@ -171,6 +195,7 @@
             {
                 successMessage = result.Message;
                 
+                // Optional: Navigate back after a delay
                 await Task.Delay(2000);
                 NavigationManager.NavigateTo("/admin/categories");
             }

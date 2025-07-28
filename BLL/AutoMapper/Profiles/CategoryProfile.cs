@@ -10,7 +10,5 @@ public class CategoryProfile : Profile
     {
         CreateMap<Category, CategoryDTO>();
         CreateMap<CategoryDTO, Category>();
-        CreateMap<CategoryCreateDTO, Category>();
-        CreateMap<CategoryUpdateDTO, Category>();
     }
 }

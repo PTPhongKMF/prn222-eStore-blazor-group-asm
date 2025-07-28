@@ -191,7 +191,7 @@
 
 @code {
     [Parameter] public int id { get; set; }
-    private ProductUpdateDTO? product;
+    private ProductDTO? product;
     private List<CategoryDTO> categories = new();
     private bool isLoading = true;
     private string errorMessage = string.Empty;
@@ -206,21 +206,10 @@
         try
         {
             categories = await CategoryService.GetAllCategoriesAsync();
-            var dto = await ProductService.GetProductByIdAsync(id);
-            if (dto != null)
+            product = await ProductService.GetProductByIdAsync(id);
+            if (product != null)
             {
-                product = new ProductUpdateDTO
-                {
-                    ProductId = dto.ProductId,
-                    ProductName = dto.ProductName,
-                    CategoryId = dto.CategoryId,
-                    Weight = dto.Weight,
-                    UnitPrice = dto.UnitPrice,
-                    UnitsInStock = dto.UnitsInStock,
-                    ImageUrl = dto.ImageUrl,
-                    ActiveStatus = dto.ActiveStatus
-                };
-                originalImageUrl = dto.ImageUrl;
+                originalImageUrl = product.ImageUrl;
             }
         }
         catch (Exception ex)
@@ -308,7 +297,7 @@
     {
         selectedImageFile = null;
         imagePreviewUrl = null;
-        product!.ImageUrl = originalImageUrl; // Khôi phục về ảnh ban đầu
+        product!.ImageUrl = originalImageUrl; 
         StateHasChanged();
     }
 
@@ -370,6 +359,6 @@
 
     private void OnCancel()
     {
-        NavigationManager.NavigateTo("/products");
+        NavigationManager.NavigateTo("/admin/products");
     }
 }

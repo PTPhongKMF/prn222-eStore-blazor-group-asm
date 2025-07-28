@@ -173,7 +173,7 @@
 </AdminOnly>
 
 @code {
-    private ProductCreateDTO product = new();
+    private ProductDTO product = new();
     private List<CategoryDTO> categories = new();
     private string errorMessage = string.Empty;
     private bool isSubmitting = false;
@@ -320,6 +320,6 @@
 
     private void OnCancel()
     {
-        NavigationManager.NavigateTo("/admin/products");
+        NavigationManager.NavigateTo("/products");
     }
 }
