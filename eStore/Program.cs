@@ -38,6 +38,7 @@ namespace eStore {
             builder.Services.AddScoped<MemberService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<CartService>();
             
             // eStore Services
             builder.Services.AddScoped<IFileStorageService, FileStorageService>();
@@ -46,6 +47,7 @@ namespace eStore {
             builder.Services.AddScoped<MemberRepository>();
             builder.Services.AddScoped<ProductRepository>();
             builder.Services.AddScoped<CategoryRepository>();
+            builder.Services.AddScoped<CartRepository>();
 
             var app = builder.Build();
 

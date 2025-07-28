@@ -2,13 +2,18 @@
 @inject IProductService ProductService
 @inject ICategoryService CategoryService
 @inject IFileStorageService FileStorageService
+@inject CartService CartService
+@inject SessionService SessionService
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
 @using BLL.DTOs
 @using BLL.Interface
+@using BLL.Services
 @using eStore.Components.Services
 
 <PageTitle>eStore - Trang chủ</PageTitle>
+
 
 <!-- Hero Section -->
 <section class="hero-section bg-primary text-white py-5 mb-5">
@@ -322,8 +327,13 @@
 
     private async Task AddToCart(ProductDTO product)
     {
-        // TODO: Implement add to cart functionality
-        await Task.CompletedTask;
+        var userSession = SessionService.GetUserSession();
+        if (userSession == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+        await CartService.AddToCartAsync(userSession.MemberId, product.ProductId, 1);
     }
 
     // Auto-apply filters when search term or category changes
