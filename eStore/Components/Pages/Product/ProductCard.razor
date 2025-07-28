@@ -5,9 +5,10 @@
     [Inject] private SessionService SessionService { get; set; } = null!;
     [Inject] private CartService CartService { get; set; } = null!;
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
 
     private async Task AddToCart()
-    {
+{
         var user = SessionService.GetUserSession();
         if (user == null)
         {
@@ -15,7 +16,8 @@
             return;
         }
         await CartService.AddToCartAsync(user.MemberId, Product.ProductId, 1);
-        // Optionally: show a toast or feedback
+
+        await JS.InvokeVoidAsync("alert", "Đã thêm 1 \"" + Product.ProductName + "\" vào giỏ hàng");
     }
 }
 

@@ -9,6 +9,7 @@
     [Inject] private SessionService SessionService { get; set; } = null!;
     [Inject] private CartService CartService { get; set; } = null!;
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+    [Inject] private IJSRuntime JS { get; set; } = null!;
 
     private ProductDTO? product;
     private List<ProductDTO> relatedProducts = new();
@@ -17,8 +18,7 @@
     public int Quantity { get; set; } = 1;
 
     protected override async Task OnParametersSetAsync() {
-        var result = await ProductService.GetActiveProducts(1, 1, ProductSortBy.None, null, null, null, null);
-        product = result.Items.FirstOrDefault(p => p.ProductId == ProductId);
+        product = await ProductService.GetProductByIdAsync(ProductId);
 
         if (product != null) {
             relatedProducts = await ProductService.GetRandomProductsFromCategory(
@@ -37,6 +37,8 @@
             return;
         }
         await CartService.AddToCartAsync(user.MemberId, product.ProductId, Quantity);
+
+        await JS.InvokeVoidAsync("alert", "Đã thêm " + Quantity + " \"" + product.ProductName + "\" vào giỏ hàng");
     }
 }
 
