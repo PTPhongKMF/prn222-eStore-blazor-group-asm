@@ -29,15 +29,16 @@
         <div class="row w-100 g-0">
             <!-- Left section - Brand -->
             <div class="col-4 d-flex align-items-center">
-                <a class="navbar-brand text-white fs-4 fw-medium ps-4 m-0" href="">Cửa Hàng Điện Tử FU</a>
+                <a class="navbar-brand text-white fs-4 fw-medium ps-4 m-0" href="">eStore</a>
             </div>
 
             <!-- Middle section - Navigation -->
             <div class="col-4 d-flex align-items-center justify-content-center gap-5">
-                <NavLink class="nav-link text-white px-3 py-2" href="" Match="NavLinkMatch.All">
-                    Trang Chủ
-                </NavLink>
+                
                 @if (IsAdmin) {
+                    <NavLink class="nav-link text-white px-3 py-2" href="" Match="NavLinkMatch.All">
+                        Trang Chủ
+                    </NavLink>
                     <NavLink class="nav-link text-white px-3 py-2" href="/admin/products">
                         Quản lý Sản Phẩm
                     </NavLink>
@@ -45,12 +46,19 @@
                         Quản lý Thành Viên
                     </NavLink>
                 }
-                <NavLink class="nav-link text-white px-3 py-2" href="products">
-                    Sản Phẩm
-                </NavLink>
-                <NavLink class="nav-link text-white px-3 py-2" href="categories">
-                    Danh Mục
-                </NavLink>
+                else
+                {
+                    <NavLink class="nav-link text-white px-3 py-2" href="" Match="NavLinkMatch.All">
+                        Trang Chủ
+                    </NavLink>              
+                    <NavLink class="nav-link text-white px-3 py-2" href="products">
+                        Sản Phẩm
+                    </NavLink>
+                    <NavLink class="nav-link text-white px-3 py-2" href="categories">
+                        Danh Mục
+                    </NavLink>
+                }
+                
             </div>
 
             <!-- Right section - User -->

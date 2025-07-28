@@ -7,7 +7,7 @@
 @using BLL.Services
 @using eStore.Components.Layout
 
-<PageTitle>Edit Member</PageTitle>
+<PageTitle>Chỉnh sửa Member</PageTitle>
 
 @code {
     [Parameter] public int MemberId { get; set; }
@@ -38,7 +38,7 @@
             var existingMember = await MemberService.GetById(MemberId);
             if (existingMember == null)
             {
-                errorMessage = "Member not found.";
+                errorMessage = "Không tìm thấy member.";
                 return;
             }
 
@@ -54,7 +54,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error loading member: {ex.Message}";
+            errorMessage = $"Lỗi khi tải member: {ex.Message}";
         }
         finally
         {
@@ -72,7 +72,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error updating member: {ex.Message}";
+            errorMessage = $"Lỗi khi cập nhật member: {ex.Message}";
         }
         finally
         {
@@ -82,20 +82,20 @@
 
     private void HandleInvalidSubmit()
     {
-        errorMessage = "Please correct the validation errors below.";
+        errorMessage = "Vui lòng sửa các lỗi xác thực bên dưới.";
     }
 }
 
 <div class="container py-4">
     <div class="card shadow-sm">
         <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Edit Member</h4>
+            <h4 class="mb-0">Chỉnh sửa Member</h4>
             <div>
                 <a href="/admin/members/details/@MemberId" class="btn btn-outline-secondary btn-sm me-2">
-                    <i class="bi bi-eye me-1"></i>View Details
+                    <i class="bi bi-eye me-1"></i>Xem chi tiết
                 </a>
                 <a href="/admin/members" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i>Back to List
+                    <i class="bi bi-arrow-left me-1"></i>Về danh sách
                 </a>
             </div>
         </div>
@@ -112,9 +112,9 @@
             {
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span class="visually-hidden">Đang tải...</span>
                     </div>
-                    <p class="mt-2">Loading member...</p>
+                    <p class="mt-2">Đang tải member...</p>
                 </div>
             }
             else
@@ -126,14 +126,14 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Email <span class="text-danger">*</span></label>
-                                <InputText class="form-control" @bind-Value="member.Email" placeholder="Enter email address" />
+                                <InputText class="form-control" @bind-Value="member.Email" placeholder="Nhập địa chỉ email" />
                                 <ValidationMessage For="@(() => member.Email)" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Password <span class="text-danger">*</span></label>
-                                <InputText type="password" class="form-control" @bind-Value="member.Password" placeholder="Enter password" />
+                                <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                                <InputText type="password" class="form-control" @bind-Value="member.Password" placeholder="Nhập mật khẩu" />
                                 <ValidationMessage For="@(() => member.Password)" />
                             </div>
                         </div>
@@ -142,35 +142,35 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Company Name</label>
-                                <InputText class="form-control" @bind-Value="member.CompanyName" placeholder="Enter company name" />
+                                <label class="form-label">Tên công ty</label>
+                                <InputText class="form-control" @bind-Value="member.CompanyName" placeholder="Nhập tên công ty" />
                                 <ValidationMessage For="@(() => member.CompanyName)" />
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="mb-3">
-                                <label class="form-label">City</label>
-                                <InputText class="form-control" @bind-Value="member.City" placeholder="Enter city" />
+                                <label class="form-label">Thành phố</label>
+                                <InputText class="form-control" @bind-Value="member.City" placeholder="Nhập thành phố" />
                                 <ValidationMessage For="@(() => member.City)" />
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="mb-3">
-                                <label class="form-label">Country</label>
-                                <InputText class="form-control" @bind-Value="member.Country" placeholder="Enter country" />
+                                <label class="form-label">Quốc gia</label>
+                                <InputText class="form-control" @bind-Value="member.Country" placeholder="Nhập quốc gia" />
                                 <ValidationMessage For="@(() => member.Country)" />
                             </div>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="/admin/members" class="btn btn-secondary">Cancel</a>
+                        <a href="/admin/members" class="btn btn-secondary">Hủy</a>
                         <button type="submit" class="btn btn-warning" disabled="@isSaving">
                             @if (isSaving)
                             {
                                 <span class="spinner-border spinner-border-sm me-1" role="status"></span>
                             }
-                            <i class="bi bi-save me-1"></i>Update Member
+                            <i class="bi bi-save me-1"></i>Cập nhật Member
                         </button>
                     </div>
                 </EditForm>
