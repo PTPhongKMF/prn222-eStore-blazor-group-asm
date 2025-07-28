@@ -1,0 +1,37 @@
+﻿@page "/payment-success"
+@inject NavigationManager NavigationManager
+
+<div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card text-center shadow-lg p-4" style="max-width: 400px; width: 100%;">
+        <h3 class="text-success mb-3">🎉 Thanh toán thành công!</h3>
+
+        <p><strong>Mã giao dịch:</strong><br />@TransactionId</p>
+        <p><strong>Số tiền thanh toán:</strong><br />@Amount VND</p>
+
+        <a href="/" class="btn btn-primary w-100 mt-3">Về trang chủ</a>
+    </div>
+</div>
+
+@code {
+    private string TransactionId = string.Empty;
+    private string Amount = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        TransactionId = query["TransactionId"] ?? "Không rõ";
+
+        var orderDesc = query["OrderDescription"] ?? string.Empty;
+
+        // Tìm số tiền từ order description bằng Regex
+        var match = System.Text.RegularExpressions.Regex.Match(orderDesc, @"\d+");
+        Amount = match.Success ? match.Value : "Không rõ";
+    }
+
+    private async Task GoHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

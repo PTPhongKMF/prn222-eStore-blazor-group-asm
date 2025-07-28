@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using BLL.Interface;
 using DAL.Entities;
+using BookingService.Repository.Models;
 namespace BookingService.Service.Implementation
 {
     public class VnPayService : IVnPayService

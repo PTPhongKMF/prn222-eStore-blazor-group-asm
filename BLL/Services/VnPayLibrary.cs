@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using DAL.Entities;
 using Microsoft.AspNetCore.Http;
+using BookingService.Repository.Models;
 
 namespace BookingService.Service.Implementation
 {

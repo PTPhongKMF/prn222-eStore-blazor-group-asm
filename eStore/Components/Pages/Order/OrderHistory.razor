@@ -1,0 +1,62 @@
+﻿@page "/order-history"
+@inject IOrderService OrderService
+@inject SessionService SessionService
+@inject NavigationManager NavigationManager
+@using BLL.Interface
+<h3>Lịch sử đơn hàng</h3>
+
+@if (orders == null)
+{
+    <p>Đang tải đơn hàng...</p>
+}
+else if (!orders.Any())
+{
+    <p>Bạn chưa có đơn hàng nào.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Ngày đặt</th>
+                <th>Phí ship</th>
+                <th>Chi tiết</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
+                    <td>@order.Freight.ToString("N0") VND</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" @onclick="@(() => ViewDetail(order.OrderId))">Xem</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<OrderDTO>? orders;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var session = SessionService.GetUserSession();
+        if (session == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        orders = await OrderService.GetOrdersByMemberIdAsync(session.MemberId);
+    }
+
+    private void ViewDetail(int orderId)
+    {
+        NavigationManager.NavigateTo($"/order-detail/{orderId}");
+    }
+}

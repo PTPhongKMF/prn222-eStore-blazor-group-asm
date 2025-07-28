@@ -1,0 +1,47 @@
+﻿@page "/order-detail/{OrderId:int}"
+@inject IOrderService OrderService
+@using BLL.Interface
+<h3>Chi tiết đơn hàng</h3>
+
+@if (orderDetail == null)
+{
+    <p>Đang tải chi tiết đơn hàng...</p>
+}
+else
+{
+    <p><strong>Mã đơn:</strong> @orderDetail.OrderId</p>
+    <p><strong>Ngày đặt:</strong> @orderDetail.OrderDate.ToString("dd/MM/yyyy")</p>
+    <p><strong>Phí ship:</strong> @orderDetail.Freight.ToString("N0") VND</p>
+
+    <h5>Sản phẩm</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Mã SP</th>
+                <th>Đơn giá</th>
+                <th>Số lượng</th>
+                <th>Giảm giá</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in orderDetail.OrderDetails)
+            {
+                <tr>
+                    <td>@item.ProductId</td>
+                    <td>@item.UnitPrice.ToString("N0") VND</td>
+                    <td>@item.Quantity</td>
+                    <td>@((item.Discount ?? 0) * 100)%</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    [Parameter] public int OrderId { get; set; }
+    private OrderDetailPageDTO? orderDetail;
+
+    protected override async Task OnInitializedAsync()
+    {
+        orderDetail = await OrderService.GetOrderDetailAsync(OrderId);
+    }
+}

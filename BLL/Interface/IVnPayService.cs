@@ -1,4 +1,5 @@
 ﻿
+using BookingService.Repository.Models;
 using DAL.Entities;
 using Microsoft.AspNetCore.Http;
 namespace BLL.Interface

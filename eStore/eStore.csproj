@@ -26,10 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Pages\Order\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="wwwroot\images\category\" />
   </ItemGroup>
 

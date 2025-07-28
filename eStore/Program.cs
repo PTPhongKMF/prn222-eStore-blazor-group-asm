@@ -7,6 +7,8 @@ using DAL.Repositories;
 using Blazored.LocalStorage;
 using eStore.Components.Services;
 using BLL.Interface;
+using BookingService.Service.Implementation;
+using DAL.Interface;
 
 namespace eStore {
     public class Program {
@@ -39,7 +41,11 @@ namespace eStore {
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<CartService>();
-            
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
             // eStore Services
             builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 

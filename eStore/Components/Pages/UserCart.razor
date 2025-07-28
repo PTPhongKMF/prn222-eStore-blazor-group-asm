@@ -2,13 +2,31 @@
 @inject CartService CartService
 @inject NavigationManager NavigationManager
 @inject SessionService SessionService
+@inject IVnPayService VnPayService
+@inject IHttpContextAccessor HttpContextAccessor
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
+@using BLL.Interface
 @using BLL.DTOs
 @using BLL.Services
+@using Microsoft.Extensions.Primitives
 @using eStore.Components.Layout
-
+@using Microsoft.AspNetCore.WebUtilities
 <PageTitle>Giỏ Hàng Của Tôi</PageTitle>
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success text-center my-4">
+        <i class="bi bi-check-circle me-2"></i>@successMessage
+        <div class="mt-2"><em>Đang chuyển về trang chủ...</em></div>
+    </div>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger text-center my-4">
+        <i class="bi bi-x-circle me-2"></i>@errorMessage
+    </div>
+}
 
 @code {
     private MemberDTO? UserSession { get; set; }
@@ -17,20 +35,20 @@
     private bool isLoading = true;
     private bool isUpdating;
 
-    protected override async Task OnInitializedAsync()
-    {
-        // Get user session directly from SessionService
-        UserSession = SessionService.GetUserSession();
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     Get user session directly from SessionService
+    //     UserSession = SessionService.GetUserSession();
         
-        // Check if user is logged in before loading cart
-        if (UserSession == null)
-        {
-            NavigationManager.NavigateTo("/login", true);
-            return;
-        }
+    //     Check if user is logged in before loading cart
+    //     if (UserSession == null)
+    //     {
+    //         NavigationManager.NavigateTo("/login", true);
+    //         return;
+    //     }
 
-        await LoadCartItems();
-    }
+    //     await LoadCartItems();
+    // }
 
     private async Task LoadCartItems()
     {
@@ -104,6 +122,68 @@
     {
         return cartItems.Sum(item => GetItemTotal(item));
     }
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var queryParams = QueryHelpers.ParseQuery(uri.Query);
+
+        if (queryParams.ContainsKey("vnp_ResponseCode"))
+        {
+            var queryDict = new QueryCollection(
+                queryParams.ToDictionary(
+                    pair => pair.Key,
+                    pair => new StringValues(pair.Value.ToArray())
+                )
+            );
+
+            var result = VnPayService.PaymentExecute(queryDict);
+
+            if (result.Success)
+            {
+                successMessage = $"✅ Thanh toán thành công! Mã GD: {result.TransactionId}, Mô tả: {result.OrderDescription}";
+
+                // Delay 3s rồi chuyển hướng về trang chủ
+                NavigationManager.NavigateTo($"/payment-success?TransactionId={result.TransactionId}&OrderDescription={result.OrderDescription}");
+                return;
+            }
+            else
+            {
+                errorMessage = $"❌ Thanh toán thất bại! Mã lỗi: {result.VnPayResponseCode}";
+            }
+        }
+
+        UserSession = SessionService.GetUserSession();
+        if (UserSession == null)
+        {
+            NavigationManager.NavigateTo("/login", true);
+            return;
+        }
+
+        await LoadCartItems();
+    }
+
+    private async Task HandleCheckout()
+    {
+        if (UserSession == null || !cartItems.Any()) return;
+
+        var model = new DAL.Entities.PaymentInformationModel
+            {
+                Amount = GetCartTotal(),
+                OrderDescription = "a",
+                OrderType = "billpayment",
+                Name = ""
+            };
+
+        var context = HttpContextAccessor.HttpContext;
+        var paymentUrl = VnPayService.CreatePaymentUrl(model, context);
+
+        // Redirect trang đến VNPay
+        NavigationManager.NavigateTo(paymentUrl, forceLoad: true);
+    }
+
+
 }
 
 @if (UserSession == null)
@@ -236,9 +316,10 @@ else
                                         <strong>Tổng cộng:</strong>
                                         <strong class="text-success">@GetCartTotal().ToString("C0", new System.Globalization.CultureInfo("vi-VN"))</strong>
                                     </div>
-                                    <button class="btn btn-success w-100" disabled="@isUpdating">
+                                    <button class="btn btn-success w-100" @onclick="HandleCheckout" disabled="@isUpdating">
                                         <i class="bi bi-credit-card me-1"></i>Thanh Toán
                                     </button>
+
                                 </div>
                             </div>
                         </div>
