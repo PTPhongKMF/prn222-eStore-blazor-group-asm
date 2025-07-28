@@ -33,5 +33,5 @@ public class ProductDTO
     [StringLength(500, ErrorMessage = "URL hình ảnh không được vượt quá 500 ký tự")]
     public string? ImageUrl { get; set; }
 
-    public string? CategoryName { get; set; }
-}
+    public virtual CategoryDTO Category { get; set; } = null!;
+} 

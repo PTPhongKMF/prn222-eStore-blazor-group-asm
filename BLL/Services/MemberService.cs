@@ -48,5 +48,11 @@ namespace BLL.Services {
         public async Task Delete(int memberId) {
             await memberRepository.Delete(memberId);
         }
+
+        public async Task<MemberDTO?> Register(MemberDTO member) {
+            Member? user = await memberRepository.Register(mapper.Map<Member>(member));
+
+            return mapper.Map<MemberDTO>(user);
+        }
     }
 }

@@ -1,0 +1,35 @@
+﻿@page "/categories"
+@rendermode InteractiveServer
+@using BLL.Services
+@using BLL.DTOs
+
+@code {
+    [Inject] private CategoryService CategoryService { get; set; } = null!;
+
+    private List<CategoryDTO> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoryService.GetAllCategories();
+    }
+}
+
+<div class="hero-section position-relative mb-4">
+    <div class="position-absolute top-50 start-50 translate-middle text-center text-white">
+        <h1 class="display-4 fw-bold title-bg px-4 py-2">Danh Mục Sản Phẩm</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var category in categories)
+        {
+            <div class="col">
+                <CategoryCard Category="category" />
+            </div>
+        }
+    </div>
+</div>
+
+
+

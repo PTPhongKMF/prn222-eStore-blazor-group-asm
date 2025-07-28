@@ -17,13 +17,6 @@
     margin-top: -0.2rem;
 }
 
-.bi-person-fill-nav-menu {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-person-fill' viewBox='0 0 16 16'%3E%3Cpath d='M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'/%3E%3C/svg%3E");
-}
-
-.bi-box-arrow-in-right {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-box-arrow-in-right' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z'/%3E%3Cpath fill-rule='evenodd' d='M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z'/%3E%3C/svg%3E");
-}
 
 /* Custom hover effect - Bootstrap doesn't provide this exact behavior */
 .nav-link:hover {
@@ -33,6 +26,51 @@
 
 .nav-link.active {
     background-color: rgba(255,255,255,0.2);
+}
+
+/* Dropdown hover styles */
+.dropdown {
+    position: relative;
+}
+
+.dropdown:hover > .dropdown-menu {
+    display: block !important;
+    margin-top: 0;
+    position: absolute;
+    right: 0;
+    z-index: 1000;
+}
+
+.dropdown > .dropdown-toggle:active {
+    pointer-events: none;
+}
+
+.dropdown-menu {
+    min-width: 200px;
+    max-width: 100%;
+}
+
+/* Dropdown items styling */
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item .bi {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+    margin-top: 0;
 }
 
 ::deep .btn-custom-yellow {

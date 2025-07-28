@@ -1,0 +1,74 @@
+@if (TotalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+                <button class="page-link" @onclick="() => OnPageChange.InvokeAsync(CurrentPage - 1)">
+                    <span aria-hidden="true">&laquo;</span>
+                </button>
+            </li>
+
+            @{
+                const int maxVisible = 5;
+                var startPage = Math.Max(1, CurrentPage - (maxVisible / 2));
+                var endPage = Math.Min(TotalPages, startPage + maxVisible - 1);
+
+                if (endPage - startPage + 1 < maxVisible)
+                {
+                    startPage = Math.Max(1, endPage - maxVisible + 1);
+                }
+
+                if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <button class="page-link" @onclick="() => OnPageChange.InvokeAsync(1)">1</button>
+                    </li>
+                    if (startPage > 2)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                }
+
+                @for (int i = startPage; i <= endPage; i++)
+                {
+                    var pageNumber = i;
+                    <li class="page-item @(CurrentPage == pageNumber ? "active" : "")">
+                        <button class="page-link" @onclick="() => OnPageChange.InvokeAsync(pageNumber)">@pageNumber</button>
+                    </li>
+                }
+
+                if (endPage < TotalPages)
+                {
+                    if (endPage < TotalPages - 1)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                    <li class="page-item">
+                        <button class="page-link" @onclick="() => OnPageChange.InvokeAsync(TotalPages)">@TotalPages</button>
+                    </li>
+                }
+            }
+
+            <li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
+                <button class="page-link" @onclick="() => OnPageChange.InvokeAsync(CurrentPage + 1)">
+                    <span aria-hidden="true">&raquo;</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public int CurrentPage { get; set; }
+
+    [Parameter, EditorRequired]
+    public int TotalPages { get; set; }
+
+    [Parameter, EditorRequired]
+    public EventCallback<int> OnPageChange { get; set; }
+} 

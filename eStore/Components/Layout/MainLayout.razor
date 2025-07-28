@@ -1,43 +1,18 @@
 ﻿@inherits LayoutComponentBase
-@using BLL.DTOs
 
-@code {
-    [Inject] private SessionService SessionService { get; set; } = null!;
+<div class="page">
+    <NavMenu />
+    <main>
+        <div class="content">
+            @Body
+        </div>
+    </main>
+</div>
 
-    public MemberDTO? UserSession { get; private set; }
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
 
-    protected override void OnInitialized() => UserSession = SessionService.GetUserSession();
-
-    public void SetUserSession(MemberDTO? user)
-    {
-        UserSession = user;
-        if (user != null)
-            SessionService.SetUserSession(user);
-        else
-            SessionService.ClearUserSession();
-        StateHasChanged();
-    }
-
-    public void RefreshUserSession()
-    {
-        UserSession = SessionService.GetUserSession();
-        StateHasChanged();
-    }
-}
-
-<CascadingValue Value="this">
-    <div class="page">
-        <NavMenu />
-        <main>
-            <div class="content">
-                @Body
-            </div>
-        </main>
-    </div>
-
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
-</CascadingValue>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>

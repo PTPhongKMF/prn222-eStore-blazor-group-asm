@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
+using BLL.DTOs;
+using DAL.Repositories;
 
 namespace BLL.Services
 {
@@ -21,8 +24,13 @@ namespace BLL.Services
             this.mapper = mapper;
         }
 
-        public async Task<List<CategoryDTO>> GetAllCategoriesAsync()
+        public async Task<List<CategoryDTO>> GetAllCategories()
         {
+            var categories = await categoryRepository.GetAllCategories();
+            return mapper.Map<List<CategoryDTO>>(categories);
+        }
+
+        public async Task<List<CategoryDTO>> GetAllCategoriesAsync() {
             var categories = await categoryRepository.GetAllCategoriesAsync();
             return mapper.Map<List<CategoryDTO>>(categories);
         }
