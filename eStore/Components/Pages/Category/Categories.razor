@@ -1,18 +1,13 @@
 ﻿@page "/categories"
+@inject CategoryService CategoryService
+@inject ProductService ProductService
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
-@using BLL.Services
+
 @using BLL.DTOs
+@using BLL.Services
 
-@code {
-    [Inject] private CategoryService CategoryService { get; set; } = null!;
-
-    private List<CategoryDTO> categories = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        categories = await CategoryService.GetAllCategories();
-    }
-}
+<PageTitle>Danh mục sản phẩm - eStore</PageTitle>
 
 <div class="hero-section position-relative mb-4">
     <div class="position-absolute top-50 start-50 translate-middle text-center text-white">
@@ -21,15 +16,231 @@
 </div>
 
 <div class="container">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        @foreach (var category in categories)
+    <div class="row">
+        @if (isLoading)
         {
-            <div class="col">
-                <CategoryCard Category="category" />
+            @for (int i = 0; i < 8; i++)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-8"></span>
+                                <span class="placeholder col-6"></span>
+                                <span class="placeholder col-4"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Lỗi:</strong> @errorMessage
+                </div>
+            </div>
+        }
+        else if (filteredCategories.Any())
+        {
+            @foreach (var category in filteredCategories)
+            {
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card h-100 shadow-sm border-0 category-card" style="transition: all 0.3s ease;" @onclick="() => NavigateToProducts(category.CategoryId)">
+                        <div class="card-body d-flex flex-column text-center" style="cursor: pointer;">
+                            
+                            <h5 class="card-title mb-3">
+                                @category.CategoryName
+                            </h5>
+                            
+                            @if (!string.IsNullOrEmpty(category.Description))
+                            {
+                                <p class="card-text text-muted small mb-3" style="line-height: 1.4;">
+                                    @category.Description
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="card-text text-muted small mb-3 fst-italic">
+                                    Khám phá sản phẩm trong danh mục này
+                                </p>
+                            }
+                            
+                            <div class="mt-auto">
+                                @{
+                                    var productCount = GetProductCountForCategory(category.CategoryId);
+                                    var activeProducts = GetActiveProductCountForCategory(category.CategoryId);
+                                }
+                                
+                                <div class="mb-3">
+                                    <span class="badge bg-primary mb-2">@productCount sản phẩm</span>
+                                    <br>
+                                    <small class="text-success">
+                                        <i class="bi bi-check-circle me-1"></i>@activeProducts có sẵn
+                                    </small>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button class="btn btn-primary btn-sm" @onclick="() => NavigateToProducts(category.CategoryId)">
+                                        <i class="bi bi-arrow-right me-1"></i>Xem sản phẩm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="bi bi-search display-1 text-muted mb-3"></i>
+                    <h4 class="text-muted">Không tìm thấy danh mục nào</h4>
+                    <p class="text-muted">Hãy thử tìm kiếm với từ khóa khác.</p>
+                    <button class="btn btn-primary" @onclick="ClearSearch">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Xóa tìm kiếm
+                    </button>
+                </div>
             </div>
         }
     </div>
+    
+    <!-- Search Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <div class="input-group" style="max-width: 400px;">
+                    <span class="input-group-text bg-transparent border-end-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" 
+                           placeholder="Tìm kiếm danh mục..." 
+                           @bind="searchTerm" 
+                           @bind:event="oninput" />
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        height: 300px;
+        background-size: cover;
+        background-position: center;
+    }
+    
+    .title-bg {
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+        cursor: pointer;
+    }
+    
+    .category-card:hover .bi-grid-3x3-gap {
+        transform: scale(1.1);
+        transition: transform 0.3s ease;
+    }
+</style>
+
+@code {
+    private List<CategoryDTO> allCategories = new();
+    private List<CategoryDTO> filteredCategories = new();
+    private List<ProductDTO> allProducts = new();
+    private bool isLoading = true;
+    private string searchTerm = string.Empty;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Load categories using the correct method
+            allCategories = await CategoryService.GetAllCategories();
+            
+            // Load all products using the same method as Products page
+            var result = await ProductService.GetActiveProducts(
+                1, // page
+                int.MaxValue, // get all products
+                ProductSortBy.None, // default sorting
+                null, // no search term
+                null, // no min price
+                null, // no max price
+                new List<int>() // no category filter
+            );
+            
+            allProducts = result.Items;
+            
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi tải dữ liệu: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        var query = allCategories.AsQueryable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(c => c.CategoryName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                                   (c.Description != null && c.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        // Sort by name
+        filteredCategories = query.OrderBy(c => c.CategoryName).ToList();
+        
+        StateHasChanged();
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = string.Empty;
+        ApplyFilters();
+    }
+
+    private void NavigateToProducts(int categoryId)
+    {
+        NavigationManager.NavigateTo($"/products/{categoryId}");
+    }
+
+    private int GetProductCountForCategory(int categoryId)
+    {
+        return allProducts.Count(p => p.CategoryId == categoryId);
+    }
+
+    private int GetActiveProductCountForCategory(int categoryId)
+    {
+        return allProducts.Count(p => p.CategoryId == categoryId && p.ActiveStatus && p.UnitsInStock > 0);
+    }
+
+    // Auto-apply filters when search term changes
+    private string _previousSearchTerm = string.Empty;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (_previousSearchTerm != searchTerm)
+        {
+            _previousSearchTerm = searchTerm;
+            ApplyFilters();
+        }
+    }
+}
 
 
 
