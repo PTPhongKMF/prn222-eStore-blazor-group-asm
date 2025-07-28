@@ -123,5 +123,20 @@ namespace DAL.Repositories
             return true;
         }
 
+        // Clear all cart items for a member
+        public async Task<bool> ClearCartAsync(int memberId)
+        {
+            var cartItems = await dbContext.Cart
+                .Where(c => c.MemberId == memberId)
+                .ToListAsync();
+
+            if (!cartItems.Any())
+                return false;
+
+            dbContext.Cart.RemoveRange(cartItems);
+            await dbContext.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

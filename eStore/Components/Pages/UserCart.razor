@@ -95,6 +95,26 @@
         }
     }
 
+    private async Task ClearAllCart()
+    {
+        if (UserSession == null) return;
+
+        isUpdating = true;
+        try
+        {
+            await CartService.ClearCartAsync(UserSession.MemberId);
+            await LoadCartItems();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi xóa tất cả sản phẩm: {ex.Message}";
+        }
+        finally
+        {
+            isUpdating = false;
+        }
+    }
+
     private decimal GetItemTotal(CartDTO item)
     {
         return (item.Product?.UnitPrice ?? 0) * item.Quantity;
@@ -158,6 +178,15 @@ else
                 }
                 else
                 {
+                    <!-- Clear All Cart Button -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-outline-danger btn-sm"
+                                @onclick="ClearAllCart"
+                                disabled="@isUpdating">
+                            <i class="bi bi-trash3 me-1"></i>Xóa Tất Cả
+                        </button>
+                    </div>
+
                     <div class="row">
                         <div class="col-lg-8">
                             @foreach (var item in cartItems)
