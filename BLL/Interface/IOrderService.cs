@@ -12,6 +12,7 @@ namespace BLL.Interface
     {
         Task<List<OrderDTO>> GetOrdersByMemberIdAsync(int memberId);
         Task<OrderDetailPageDTO?> GetOrderDetailAsync(int orderId);
+        Task<int> CreateOrderAsync(OrderDTO orderDto, List<OrderDetailDTO> details);
     }
 
 

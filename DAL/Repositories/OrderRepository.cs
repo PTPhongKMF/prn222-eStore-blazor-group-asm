@@ -36,6 +36,12 @@ namespace DAL.Repositories
                     .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync();
         }
+        public async Task<Order> CreateOrderAsync(Order order)
+        {
+            _context.Order.Add(order);
+            await _context.SaveChangesAsync();
+            return order;
+        }
     }
 
 }

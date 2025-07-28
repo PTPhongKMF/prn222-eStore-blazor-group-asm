@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BLL.DTOs;
 using BLL.Interface;
 using DAL.Entities;
@@ -13,10 +14,11 @@ namespace BLL.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
-
-        public OrderService(IOrderRepository orderRepository)
+        private readonly IMapper _mapper;
+        public OrderService(IOrderRepository orderRepository, IMapper mapper)
         {
             _orderRepository = orderRepository;
+            _mapper = mapper;
         }
 
             public async Task<List<OrderDTO>> GetOrdersByMemberIdAsync(int memberId)
@@ -57,7 +59,25 @@ namespace BLL.Services
                     }).ToList()
                 };
             }
+        public async Task<int> CreateOrderAsync(OrderDTO orderDto, List<OrderDetailDTO> details)
+        {
+            // Convert OrderDTO to Order entity
+            var order = _mapper.Map<Order>(orderDto);
+            order.OrderDate = DateTime.Now;
+
+            // Map details and attach to Order
+            order.OrderDetails = details.Select(d => new OrderDetail
+            {
+                ProductId = d.ProductId,
+                Quantity = d.Quantity,
+                UnitPrice = d.UnitPrice,
+                Discount = d.Discount
+            }).ToList();
+
+            var savedOrder = await _orderRepository.CreateOrderAsync(order);
+            return savedOrder.OrderId;
         }
+    }
 
     }
 

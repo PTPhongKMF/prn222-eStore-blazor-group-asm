@@ -11,6 +11,7 @@ namespace DAL.Interface
     {
         Task<List<Order>> GetOrdersByMemberIdAsync(int memberId);
         Task<Order?> GetOrderWithDetailsAsync(int orderId);
+        Task<Order> CreateOrderAsync(Order order);
     }
 
 }

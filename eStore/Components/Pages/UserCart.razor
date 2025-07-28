@@ -5,6 +5,7 @@
 @inject IVnPayService VnPayService
 @inject IHttpContextAccessor HttpContextAccessor
 @inject NavigationManager NavigationManager
+@inject IOrderService OrderService
 @rendermode InteractiveServer
 
 @using BLL.Interface
@@ -163,8 +164,25 @@ else if (!string.IsNullOrEmpty(errorMessage))
             if (result.Success)
             {
                 successMessage = $"✅ Thanh toán thành công! Mã GD: {result.TransactionId}, Mô tả: {result.OrderDescription}";
-
-                // Delay 3s rồi chuyển hướng về trang chủ
+                UserSession = SessionService.GetUserSession();
+                var orderDto = new OrderDTO
+                    {
+                        MemberId = UserSession.MemberId,
+                        OrderDate = DateTime.Now,
+                        OrderStatusId = 1, // Chưa xử lý
+                        PaymentStatusId = 1, // Chưa thanh toán
+                        Freight = 0
+                    };
+                await LoadCartItems();
+                var detailDtos = cartItems.Select(item => new OrderDetailDTO
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.Product.UnitPrice,
+                        Discount = 0
+                    }).ToList();
+                await OrderService.CreateOrderAsync(orderDto, detailDtos);
+                ClearAllCart(); 
                 NavigationManager.NavigateTo($"/payment-success?TransactionId={result.TransactionId}&OrderDescription={result.OrderDescription}");
                 return;
             }

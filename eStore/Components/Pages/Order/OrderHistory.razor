@@ -32,7 +32,7 @@ else
                     <td>@order.OrderDate.ToString("dd/MM/yyyy")</td>
                     <td>@order.Freight.ToString("N0") VND</td>
                     <td>
-                        <button class="btn btn-sm btn-primary" @onclick="@(() => ViewDetail(order.OrderId))">Xem</button>
+                        <a class="btn btn-sm btn-primary" href="@($"/order-detail/{order.OrderId}")">Xem</a>
                     </td>
                 </tr>
             }
@@ -42,6 +42,8 @@ else
 
 @code {
     private List<OrderDTO>? orders;
+    [Parameter]
+    public int OrderId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
