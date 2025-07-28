@@ -25,6 +25,30 @@ namespace BLL.Services {
             return mapper.Map<MemberDTO>(user);
         }
 
+        public async Task<List<MemberDTO>> GetAll() {
+            var users = await memberRepository.GetAll();
+            return users.Select(u => mapper.Map<MemberDTO>(u)).ToList();
+        }
+
+        public async Task<MemberDTO?> GetById(int memberId) {
+            var user = await memberRepository.GetById(memberId);
+            return mapper.Map<MemberDTO>(user);
+        }
+
+        public async Task Add(MemberDTO member) {
+            var entity = mapper.Map<Member>(member);
+            await memberRepository.Add(entity);
+        }
+
+        public async Task Update(MemberDTO member) {
+            var entity = mapper.Map<Member>(member);
+            await memberRepository.Update(entity);
+        }
+
+        public async Task Delete(int memberId) {
+            await memberRepository.Delete(memberId);
+        }
+
         public async Task<MemberDTO?> Register(MemberDTO member) {
             Member? user = await memberRepository.Register(mapper.Map<Member>(member));
 

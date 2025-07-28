@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DAL.Entities;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,11 +16,23 @@ namespace DAL.Repositories {
             this.dbContext = dbContext;
         }
 
-        public async Task<List<Category>> GetAllCategories()
+        public async Task<List<Category>> GetAllCategoriesAsync()
         {
             return await dbContext.Category
                 .OrderBy(c => c.CategoryName)
                 .ToListAsync();
+        }
+
+        public async Task<List<Category>> GetAllCategories() {
+            return await dbContext.Category
+                .OrderBy(c => c.CategoryName)
+                .ToListAsync();
+        }
+
+        public async Task<Category?> GetCategoryByIdAsync(int categoryId)
+        {
+            return await dbContext.Category
+                .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
         }
     }
 }

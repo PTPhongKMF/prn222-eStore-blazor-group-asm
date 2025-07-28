@@ -6,6 +6,9 @@
     public int ProductId { get; set; }
 
     [Inject] private ProductService ProductService { get; set; } = null!;
+    [Inject] private SessionService SessionService { get; set; } = null!;
+    [Inject] private CartService CartService { get; set; } = null!;
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
     private ProductDTO? product;
     private List<ProductDTO> relatedProducts = new();
@@ -27,7 +30,14 @@
 
     private async Task AddToCart() {
         if (product == null || Quantity < 1 || Quantity > product.UnitsInStock) return;
-        // TODO: Implement add to cart functionality
+        var user = SessionService.GetUserSession();
+        if (user == null)
+        {
+            NavigationManager.NavigateTo("/login", true);
+            return;
+        }
+        await CartService.AddToCartAsync(user.MemberId, product.ProductId, Quantity);
+        // Optionally: show a toast or feedback
     }
 }
 

@@ -1,0 +1,93 @@
+﻿@page "/profile"
+@inject SessionService SessionService
+@inject NavigationManager NavigationManager
+@using BLL.DTOs
+@using eStore.Components.Layout
+
+<PageTitle>Thông tin cá nhân</PageTitle>
+
+@code {
+    protected override void OnInitialized()
+    {
+        if (SessionService.GetUserSession() == null)
+        {
+            NavigationManager.NavigateTo("/login", true);
+        }
+    }
+}
+
+@if (SessionService.GetUserSession() == null)
+{
+    <div class="alert alert-warning text-center my-5">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        Vui lòng đăng nhập để xem thông tin cá nhân.
+    </div>
+}
+else
+{
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-person me-2"></i>Thông tin cá nhân
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">ID:</label>
+                                    <p class="form-control-plaintext">@SessionService.GetUserSession()!.MemberId</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Email:</label>
+                                    <p class="form-control-plaintext">
+                                        @SessionService.GetUserSession()!.Email
+                                        @if (SessionService.GetUserSession()!.Email.Equals("admin@estore.com", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-danger ms-2">Admin</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Tên công ty:</label>
+                                    <p class="form-control-plaintext">@(SessionService.GetUserSession()!.CompanyName ?? "Chưa cập nhật")</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Thành phần:</label>
+                                    <p class="form-control-plaintext">@(SessionService.GetUserSession()!.City ?? "Chưa cập nhật")</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Quốc gia:</label>
+                                    <p class="form-control-plaintext">@(SessionService.GetUserSession()!.Country ?? "Chưa cập nhật")</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <a href="/" class="btn btn-secondary">
+                                <i class="bi bi-house me-2"></i>Về trang chủ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

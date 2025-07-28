@@ -8,6 +8,9 @@
     [Inject] private SessionService SessionService { get; set; } = null!;
     [Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
+    private bool IsAdmin => AuthHelper.IsAdmin(SessionService.GetUserSession());
+    private string DisplayName => AuthHelper.GetDisplayName(SessionService.GetUserSession());
+
     private string GetDisplayName() {
         var user = SessionService.GetUserSession();
         if (user?.Email == null) return string.Empty;
@@ -26,7 +29,7 @@
         <div class="row w-100 g-0">
             <!-- Left section - Brand -->
             <div class="col-4 d-flex align-items-center">
-                <a class="navbar-brand text-white fs-4 fw-medium ps-4 m-0" href="">FU Ecommerce Store</a>
+                <a class="navbar-brand text-white fs-4 fw-medium ps-4 m-0" href="">Cửa Hàng Điện Tử FU</a>
             </div>
 
             <!-- Middle section - Navigation -->
@@ -34,6 +37,14 @@
                 <NavLink class="nav-link text-white px-3 py-2" href="" Match="NavLinkMatch.All">
                     Trang Chủ
                 </NavLink>
+                @if (IsAdmin) {
+                    <NavLink class="nav-link text-white px-3 py-2" href="/admin/products">
+                        Quản lý Sản Phẩm
+                    </NavLink>
+                    <NavLink class="nav-link text-white px-3 py-2" href="admin/members">
+                        Quản lý Thành Viên
+                    </NavLink>
+                }
                 <NavLink class="nav-link text-white px-3 py-2" href="products">
                     Sản Phẩm
                 </NavLink>
@@ -45,22 +56,28 @@
             <!-- Right section - User -->
             <div class="col-4 d-flex align-items-center justify-content-end pe-4">
                 @if (SessionService.GetUserSession() != null) {
+                    <NavLink href="/cart" class="btn btn-outline-light me-3 position-relative">
+                        <i class="bi bi-cart3 me-1"></i>Giỏ hàng
+                    </NavLink>
                     <div class="dropdown">
-                        <a class="nav-link text-white px-3 py-2 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-fill me-2"></i>
-                            @GetDisplayName()
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <button class="btn nav-link text-white px-3 py-2 dropdown-toggle"
+                                type="button"
+                                id="userDropdown"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                style="background: none; border: none;">
+                            <i class="bi bi-person-fill me-1"></i>@DisplayName
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li>
-                                <a class="dropdown-item py-2" href="/profile">
-                                    <i class="bi bi-person me-2 align-middle mb-2"></i>
-                                    <span class="align-middle">Thông tin cá nhân</span>
+                                <a class="dropdown-item" href="/profile">
+                                    <i class="bi bi-person me-2"></i>Thông tin cá nhân
                                 </a>
                             </li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <button @onclick="HandleLogout" class="dropdown-item py-2">
-                                    <i class="bi bi-box-arrow-right me-2 align-middle mb-2"></i>
-                                    <span class="align-middle">Đăng xuất</span>
+                                <button class="dropdown-item" type="button" @onclick="HandleLogout">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
                                 </button>
                             </li>
                         </ul>
