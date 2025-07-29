@@ -62,10 +62,9 @@ namespace DAL.Repositories {
             if (category == null)
                 return false;
 
-            // Check if category has products
             var hasProducts = await dbContext.Product.AnyAsync(p => p.CategoryId == categoryId);
             if (hasProducts)
-                return false; // Cannot delete category with products
+                return false; 
 
             dbContext.Category.Remove(category);
             await dbContext.SaveChangesAsync();

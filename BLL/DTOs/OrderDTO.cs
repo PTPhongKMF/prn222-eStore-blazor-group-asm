@@ -22,4 +22,7 @@ public class OrderDTO
     public int PaymentStatusId { get; set; }
 
     public int? PaymentMethodId { get; set; }
-} 
+
+    // For admin purposes
+    public string? MemberEmail { get; set; }
+}

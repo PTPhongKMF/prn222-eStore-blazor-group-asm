@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Components.Forms;
+﻿using Microsoft.AspNetCore.Components.Forms;
 
 namespace eStore.Components.Services
 {
@@ -39,37 +39,37 @@ namespace eStore.Components.Services
                 // Validate inputs
                 if (file == null)
                 {
-                    return (false, "Kh�ng c� file ???c ch?n", null);
+                    return (false, "Không có file được chọn", null);
                 }
 
                 // Validate file size
                 if (file.Size > maxSizeInBytes)
                 {
-                    return (false, $"K�ch th??c file kh�ng ???c v??t qu� {maxSizeInMB}MB. File hi?n t?i: {file.Size / (1024 * 1024):F1}MB", null);
+                    return (false, $"Kích thước file không được vượt quá {maxSizeInMB}MB. File hiện tại: {file.Size / (1024 * 1024):F1}MB", null);
                 }
 
                 if (file.Size == 0)
                 {
-                    return (false, "File kh�ng c� d? li?u", null);
+                    return (false, "File không có dữ liệu", null);
                 }
 
                 // Validate extension
                 var extension = Path.GetExtension(file.Name).ToLowerInvariant();
                 if (string.IsNullOrEmpty(extension))
                 {
-                    return (false, "File kh�ng c� ph?n m? r?ng", null);
+                    return (false, "File không có phần mở rộng", null);
                 }
 
                 if (allowedExtensions == null || !allowedExtensions.Contains(extension))
                 {
-                    return (false, $"??nh d?ng file kh�ng ???c h? tr?: {extension}. Ch? ch?p nh?n: {string.Join(", ", allowedExtensions ?? [])}", null);
+                    return (false, $"Định dạng file không được hỗ trợ: {extension}. Chỉ chấp nhận: {string.Join(", ", allowedExtensions ?? [])}", null);
                 }
 
                 // Ensure directory exists
                 var directoryCreated = await EnsureDirectoryExistsAsync();
                 if (!directoryCreated)
                 {
-                    return (false, "Kh�ng th? t?o th? m?c upload", null);
+                    return (false, "Không thể tạo thư mục upload", null);
                 }
 
                 // Generate unique filename
@@ -80,7 +80,7 @@ namespace eStore.Components.Services
                 // Check if directory is writable
                 if (!Directory.Exists(uploadDirectory))
                 {
-                    return (false, "Th? m?c upload kh�ng t?n t?i", null);
+                    return (false, "Thư mục upload không tồn tại", null);
                 }
 
                 // Save file with proper error handling
@@ -93,28 +93,28 @@ namespace eStore.Components.Services
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    return (false, "Kh�ng c� quy?n ghi file v�o th? m?c upload", null);
+                    return (false, "Không có quyền ghi file vào thư mục upload", null);
                 }
                 catch (DirectoryNotFoundException)
                 {
-                    return (false, "Th? m?c upload kh�ng t?n t?i", null);
+                    return (false, "Thư mục upload không tồn tại", null);
                 }
                 catch (IOException ioEx)
                 {
-                    return (false, $"L?i I/O khi l?u file: {ioEx.Message}", null);
+                    return (false, $"Lỗi I/O khi lưu file: {ioEx.Message}", null);
                 }
 
                 // Verify file was saved
                 if (!File.Exists(fullPath))
                 {
-                    return (false, "File kh�ng ???c l?u th�nh c�ng", null);
+                    return (false, "File không được lưu thành công", null);
                 }
 
                 var fileInfo = new FileInfo(fullPath);
                 if (fileInfo.Length == 0)
                 {
                     File.Delete(fullPath); // Clean up empty file
-                    return (false, "File ???c l?u nh?ng kh�ng c� d? li?u", null);
+                    return (false, "File được lưu nhưng không có dữ liệu", null);
                 }
 
                 var baseUrl = config.GetValue<string>("BaseUrl");
@@ -123,12 +123,12 @@ namespace eStore.Components.Services
                 _logger.LogInformation("Successfully uploaded image: {FileName} ({Size} bytes) to {Path}", 
                     fileName, fileInfo.Length, relativePath);
                 
-                return (true, "Upload th�nh c�ng", relativePath);
+                return (true, "Upload thành công", relativePath);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error uploading file: {FileName}", file?.Name ?? "unknown");
-                return (false, $"L?i kh�ng mong mu?n: {ex.Message}", null);
+                return (false, $"Lỗi không mong muốn: {ex.Message}", null);
             }
         }
 

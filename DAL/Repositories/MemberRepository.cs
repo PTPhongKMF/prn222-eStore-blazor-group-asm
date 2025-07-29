@@ -24,7 +24,6 @@ namespace DAL.Repositories {
             return user;
         }
 
-        // CREATE
         public async Task<Member> Add(Member member)
         {
             dbContext.Member.Add(member);
@@ -32,19 +31,16 @@ namespace DAL.Repositories {
             return member;
         }
 
-        // READ ALL
         public async Task<List<Member>> GetAll()
         {
             return await dbContext.Member.ToListAsync();
         }
 
-        // READ BY ID
         public async Task<Member?> GetById(int memberId)
         {
             return await dbContext.Member.FindAsync(memberId);
         }
 
-        // UPDATE
         public async Task Update(Member member)
         {
             var trackedEntity = dbContext.ChangeTracker.Entries<Member>()
@@ -52,7 +48,6 @@ namespace DAL.Repositories {
 
             if (trackedEntity != null)
             {
-                // Detach the already tracked entity
                 trackedEntity.State = EntityState.Detached;
             }
 
@@ -62,7 +57,6 @@ namespace DAL.Repositories {
             await dbContext.SaveChangesAsync();
         }
 
-        // DELETE
         public async Task Delete(int memberId)
         {
             var member = await dbContext.Member.FindAsync(memberId);

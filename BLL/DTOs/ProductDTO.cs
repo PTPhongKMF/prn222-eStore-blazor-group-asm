@@ -29,7 +29,6 @@ public class ProductDTO
 
     public bool ActiveStatus { get; set; } = true;
 
-
     public string? ImageUrl { get; set; }
 
     public virtual CategoryDTO? Category { get; set; }

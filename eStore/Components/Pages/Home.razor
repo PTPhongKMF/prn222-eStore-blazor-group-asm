@@ -233,7 +233,6 @@
     {
         try
         {
-            // Load data sequentially to avoid DbContext threading issues
             categories = await CategoryService.GetAllCategoriesAsync();
             products = await ProductService.GetAllProductsAsync();
             
@@ -272,7 +271,6 @@
             .ThenBy(p => p.ProductName)
             .ToList();
 
-        // Reset display count when filters change
         displayCount = 8;
         StateHasChanged();
     }
@@ -301,7 +299,6 @@
         await CartService.AddToCartAsync(userSession.MemberId, product.ProductId, 1);
     }
 
-    // Auto-apply filters when search term or category changes
     private string _previousSearchTerm = string.Empty;
     private int _previousCategoryId = 0;
 

@@ -17,7 +17,6 @@ namespace DAL.Repositories
             this.dbContext = dbContext;
         }
 
-        // Get all cart items for a member
         public async Task<List<Cart>> GetCartByMemberIdAsync(int memberId)
         {
             return await dbContext.Cart
@@ -29,7 +28,6 @@ namespace DAL.Repositories
                 .ToListAsync();
         }
 
-        // Add item to cart or update quantity if exists
         public async Task<Cart> AddToCartAsync(Cart cartItem)
         {
             var existingItem = await dbContext.Cart
@@ -37,11 +35,9 @@ namespace DAL.Repositories
 
             if (existingItem != null)
             {
-                // Update quantity if item already exists
                 existingItem.Quantity += cartItem.Quantity;
                 await dbContext.SaveChangesAsync();
 
-                // Reload with navigation properties
                 await dbContext.Entry(existingItem)
                     .Reference(c => c.Product)
                     .LoadAsync();
@@ -56,11 +52,9 @@ namespace DAL.Repositories
             }
             else
             {
-                // Add new item
                 dbContext.Cart.Add(cartItem);
                 await dbContext.SaveChangesAsync();
 
-                // Reload with navigation properties
                 await dbContext.Entry(cartItem)
                     .Reference(c => c.Product)
                     .LoadAsync();
@@ -75,7 +69,6 @@ namespace DAL.Repositories
             }
         }
 
-        // Update cart item quantity
         public async Task<Cart?> UpdateCartItemQuantityAsync(int memberId, int productId, int newQuantity)
         {
             var cartItem = await dbContext.Cart
@@ -86,7 +79,6 @@ namespace DAL.Repositories
 
             if (newQuantity <= 0)
             {
-                // Remove item if quantity is 0 or negative
                 dbContext.Cart.Remove(cartItem);
                 await dbContext.SaveChangesAsync();
                 return null;
@@ -95,7 +87,6 @@ namespace DAL.Repositories
             cartItem.Quantity = newQuantity;
             await dbContext.SaveChangesAsync();
 
-            // Reload with navigation properties
             await dbContext.Entry(cartItem)
                 .Reference(c => c.Product)
                 .LoadAsync();
@@ -109,7 +100,6 @@ namespace DAL.Repositories
             return cartItem;
         }
 
-        // Remove item from cart
         public async Task<bool> RemoveFromCartAsync(int memberId, int productId)
         {
             var cartItem = await dbContext.Cart
@@ -123,7 +113,6 @@ namespace DAL.Repositories
             return true;
         }
 
-        // Clear all cart items for a member
         public async Task<bool> ClearCartAsync(int memberId)
         {
             var cartItems = await dbContext.Cart
