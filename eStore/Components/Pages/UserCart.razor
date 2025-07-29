@@ -182,7 +182,7 @@ else if (!string.IsNullOrEmpty(errorMessage))
                         Discount = 0
                     }).ToList();
                 await OrderService.CreateOrderAsync(orderDto, detailDtos);
-                ClearAllCart(); 
+                await ClearAllCart(); 
                 NavigationManager.NavigateTo($"/payment-success?TransactionId={result.TransactionId}&OrderDescription={result.OrderDescription}");
                 return;
             }
