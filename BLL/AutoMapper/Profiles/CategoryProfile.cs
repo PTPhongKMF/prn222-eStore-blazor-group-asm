@@ -11,4 +11,4 @@ public class CategoryProfile : Profile
         CreateMap<Category, CategoryDTO>();
         CreateMap<CategoryDTO, Category>();
     }
-} 
+}

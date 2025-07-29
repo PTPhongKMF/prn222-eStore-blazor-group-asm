@@ -8,10 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
-using BLL.DTOs;
-using DAL.Entities;
-using DAL.Repositories;
 
 namespace BLL.Services {
     public enum ProductSortBy {
@@ -66,28 +62,28 @@ namespace BLL.Services {
         }
 
         // Create new product
-        public async Task<(bool Success, string Message, ProductDTO? Product)> CreateProductAsync(ProductCreateDTO productCreateDto)
+        public async Task<(bool Success, string Message, ProductDTO? Product)> CreateProductAsync(ProductDTO productDto)
         {
             try
             {
                 // Validate category exists
-                var category = await categoryRepository.GetCategoryByIdAsync(productCreateDto.CategoryId);
+                var category = await categoryRepository.GetCategoryByIdAsync(productDto.CategoryId);
                 if (category == null)
                 {
                     return (false, "Danh mục không tồn tại", null);
                 }
 
                 // Check if product name already exists
-                if (await productRepository.ProductNameExistsAsync(productCreateDto.ProductName))
+                if (await productRepository.ProductNameExistsAsync(productDto.ProductName))
                 {
                     return (false, "Tên sản phẩm đã tồn tại", null);
                 }
 
-                var product = mapper.Map<Product>(productCreateDto);
+                var product = mapper.Map<Product>(productDto);
                 var createdProduct = await productRepository.CreateProductAsync(product);
-                var productDto = mapper.Map<ProductDTO>(createdProduct);
+                var resultDto = mapper.Map<ProductDTO>(createdProduct);
 
-                return (true, "Tạo sản phẩm thành công", productDto);
+                return (true, "Tạo sản phẩm thành công", resultDto);
             }
             catch (Exception ex)
             {
@@ -96,31 +92,31 @@ namespace BLL.Services {
         }
 
         // Update product
-        public async Task<(bool Success, string Message, ProductDTO? Product)> UpdateProductAsync(ProductUpdateDTO productUpdateDto)
+        public async Task<(bool Success, string Message, ProductDTO? Product)> UpdateProductAsync(ProductDTO productDto)
         {
             try
             {
                 // Check if product exists
-                var existingProduct = await productRepository.GetProductByIdAsync(productUpdateDto.ProductId);
+                var existingProduct = await productRepository.GetProductByIdAsync(productDto.ProductId);
                 if (existingProduct == null)
                 {
                     return (false, "Sản phẩm không tồn tại", null);
-        }
+                }
 
                 // Validate category exists
-                var category = await categoryRepository.GetCategoryByIdAsync(productUpdateDto.CategoryId);
+                var category = await categoryRepository.GetCategoryByIdAsync(productDto.CategoryId);
                 if (category == null)
                 {
                     return (false, "Danh mục không tồn tại", null);
                 }
             
                 // Check if product name already exists (excluding current product)
-                if (await productRepository.ProductNameExistsAsync(productUpdateDto.ProductName, productUpdateDto.ProductId))
+                if (await productRepository.ProductNameExistsAsync(productDto.ProductName, productDto.ProductId))
                 {
                     return (false, "Tên sản phẩm đã tồn tại", null);
                 }
 
-                var product = mapper.Map<Product>(productUpdateDto);
+                var product = mapper.Map<Product>(productDto);
                 var updatedProduct = await productRepository.UpdateProductAsync(product);
 
                 if (updatedProduct == null)
@@ -128,8 +124,8 @@ namespace BLL.Services {
                     return (false, "Không thể cập nhật sản phẩm", null);
                 }
 
-                var productDto = mapper.Map<ProductDTO>(updatedProduct);
-                return (true, "Cập nhật sản phẩm thành công", productDto);
+                var resultDto = mapper.Map<ProductDTO>(updatedProduct);
+                return (true, "Cập nhật sản phẩm thành công", resultDto);
             }
             catch (Exception ex)
             {

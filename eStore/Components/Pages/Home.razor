@@ -203,41 +203,6 @@
     }
 </section>
 
-<!-- Statistics Section -->
-<section class="bg-light py-5">
-    <div class="container">
-        <div class="row text-center">
-            <div class="col-md-3 mb-4">
-                <div class="d-flex flex-column align-items-center">
-                    <i class="bi bi-box-seam text-primary display-6 mb-2"></i>
-                    <h3 class="fw-bold text-primary">@products.Count</h3>
-                    <p class="text-muted mb-0">Sản phẩm</p>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="d-flex flex-column align-items-center">
-                    <i class="bi bi-tags text-success display-6 mb-2"></i>
-                    <h3 class="fw-bold text-success">@categories.Count</h3>
-                    <p class="text-muted mb-0">Danh mục</p>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="d-flex flex-column align-items-center">
-                    <i class="bi bi-check-circle text-info display-6 mb-2"></i>
-                    <h3 class="fw-bold text-info">@products.Count(p => p.ActiveStatus)</h3>
-                    <p class="text-muted mb-0">Đang bán</p>
-                </div>
-            </div>
-            <div class="col-md-3 mb-4">
-                <div class="d-flex flex-column align-items-center">
-                    <i class="bi bi-exclamation-triangle text-warning display-6 mb-2"></i>
-                    <h3 class="fw-bold text-warning">@products.Count(p => p.UnitsInStock <= 10)</h3>
-                    <p class="text-muted mb-0">Sắp hết hàng</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <style>
     .hero-section {
@@ -268,7 +233,6 @@
     {
         try
         {
-            // Load data sequentially to avoid DbContext threading issues
             categories = await CategoryService.GetAllCategoriesAsync();
             products = await ProductService.GetAllProductsAsync();
             
@@ -307,7 +271,6 @@
             .ThenBy(p => p.ProductName)
             .ToList();
 
-        // Reset display count when filters change
         displayCount = 8;
         StateHasChanged();
     }
@@ -336,7 +299,6 @@
         await CartService.AddToCartAsync(userSession.MemberId, product.ProductId, 1);
     }
 
-    // Auto-apply filters when search term or category changes
     private string _previousSearchTerm = string.Empty;
     private int _previousCategoryId = 0;
 

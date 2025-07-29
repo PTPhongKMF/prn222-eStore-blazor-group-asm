@@ -24,7 +24,6 @@ namespace DAL.Repositories {
             this.dbContext = dbContext;
         }
 
-        // Get all products with category information
         public async Task<List<Product>> GetAllProductsAsync()
         {
             return await dbContext.Product
@@ -33,7 +32,6 @@ namespace DAL.Repositories {
                 .ToListAsync();
         }
 
-        // Get product by ID with category
         public async Task<Product?> GetProductByIdAsync(int productId)
         {
             return await dbContext.Product
@@ -41,7 +39,6 @@ namespace DAL.Repositories {
                 .FirstOrDefaultAsync(p => p.ProductId == productId);
         }
 
-        // Get products by category
         public async Task<List<Product>> GetProductsByCategoryAsync(int categoryId)
         {
             return await dbContext.Product
@@ -51,7 +48,6 @@ namespace DAL.Repositories {
                 .ToListAsync();
         }
             
-        // Get active products only
         public async Task<List<Product>> GetActiveProductsAsync()
         {
             return await dbContext.Product
@@ -61,13 +57,11 @@ namespace DAL.Repositories {
                 .ToListAsync();
         }
 
-        // Create new product
         public async Task<Product> CreateProductAsync(Product product)
         {
             dbContext.Product.Add(product);
             await dbContext.SaveChangesAsync();
 
-            // Reload with category information
             await dbContext.Entry(product)
                 .Reference(p => p.Category)
                 .LoadAsync();
@@ -75,7 +69,6 @@ namespace DAL.Repositories {
             return product;
             }
 
-        // Update existing product
         public async Task<Product?> UpdateProductAsync(Product product)
         {
             var existingProduct = await dbContext.Product
@@ -84,7 +77,6 @@ namespace DAL.Repositories {
             if (existingProduct == null)
                 return null;
 
-            // Update properties
             existingProduct.CategoryId = product.CategoryId;
             existingProduct.ProductName = product.ProductName;
             existingProduct.Weight = product.Weight;
@@ -95,7 +87,6 @@ namespace DAL.Repositories {
 
             await dbContext.SaveChangesAsync();
 
-            // Reload with category information
             await dbContext.Entry(existingProduct)
                 .Reference(p => p.Category)
                 .LoadAsync();
@@ -103,7 +94,6 @@ namespace DAL.Repositories {
             return existingProduct;
             }
 
-        // Delete product (soft delete by setting ActiveStatus to false)
         public async Task<bool> DeleteProductAsync(int productId)
         {
             var product = await dbContext.Product
@@ -117,7 +107,6 @@ namespace DAL.Repositories {
             return true;
             }
 
-        // Hard delete product (permanent removal)
         public async Task<bool> HardDeleteProductAsync(int productId)
         {
             var product = await dbContext.Product
@@ -131,7 +120,6 @@ namespace DAL.Repositories {
             return true;
             }
 
-        // Check if product name exists (for validation)
         public async Task<bool> ProductNameExistsAsync(string productName, int? excludeProductId = null)
         {
             var query = dbContext.Product.Where(p => p.ProductName.ToLower() == productName.ToLower());
@@ -142,7 +130,6 @@ namespace DAL.Repositories {
             return await query.AnyAsync();
         }
 
-        // Get products with low stock
         public async Task<List<Product>> GetLowStockProductsAsync(int threshold = 10) {
             return await dbContext.Product
                 .Include(p => p.Category)
@@ -177,7 +164,6 @@ namespace DAL.Repositories {
                 query = query.Where(p => p.UnitPrice <= maxPrice.Value);
             }
 
-            // Apply category filter
             if (categoryIds != null && categoryIds.Any()) {
                 query = query.Where(p => categoryIds.Contains(p.CategoryId));
             }

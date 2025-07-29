@@ -36,12 +36,42 @@ namespace DAL.Repositories
                     .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync();
         }
+
         public async Task<Order> CreateOrderAsync(Order order)
         {
             _context.Order.Add(order);
             await _context.SaveChangesAsync();
             return order;
         }
-    }
 
+        public async Task<List<Order>> GetAllOrdersAsync()
+        {
+            return await _context.Order
+                .Include(o => o.Member)
+                .Include(o => o.OrderStatus)
+                .Include(o => o.PaymentStatus)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+        }
+
+        public async Task<bool> UpdateOrderStatusAsync(int orderId, int statusId)
+        {
+            var order = await _context.Order.FindAsync(orderId);
+            if (order == null) return false;
+
+            order.OrderStatusId = statusId;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<List<Order>> GetOrdersWithDetailsByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _context.Order
+                .Where(o => o.OrderDate.Date >= startDate.Date && o.OrderDate.Date <= endDate.Date)
+                .Include(o => o.OrderDetails)
+                .Include(o => o.Member)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+        }
+    }
 }

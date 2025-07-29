@@ -13,8 +13,8 @@ namespace BLL.Interface
         Task<ProductDTO?> GetProductByIdAsync(int productId);
         Task<List<ProductDTO>> GetProductsByCategoryAsync(int categoryId);
         Task<List<ProductDTO>> GetActiveProductsAsync();
-        Task<(bool Success, string Message, ProductDTO? Product)> CreateProductAsync(ProductCreateDTO productCreateDto);
-        Task<(bool Success, string Message, ProductDTO? Product)> UpdateProductAsync(ProductUpdateDTO productUpdateDto);
+        Task<(bool Success, string Message, ProductDTO? Product)> CreateProductAsync(ProductDTO productDto);
+        Task<(bool Success, string Message, ProductDTO? Product)> UpdateProductAsync(ProductDTO productDto);
         Task<(bool Success, string Message)> DeleteProductAsync(int productId);
         Task<(bool Success, string Message)> HardDeleteProductAsync(int productId);
         Task<List<CategoryDTO>> GetCategoriesAsync();

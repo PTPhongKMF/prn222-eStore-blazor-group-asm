@@ -1,0 +1,508 @@
+﻿@page "/admin/orders"
+@inject IOrderService OrderService
+@inject SessionService SessionService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+@using BLL.Interface
+@using BLL.DTOs
+@using eStore.Components.Services
+@using eStore.Components.Shared
+
+<PageTitle>Quản lý đơn hàng</PageTitle>
+
+<AdminOnly>
+    <div class="container py-4">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <button class="nav-link @(activeTab == "orders" ? "active" : "")" @onclick="ShowOrdersTab">
+                    Quản lý đơn hàng
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(activeTab == "report" ? "active" : "")" @onclick="ShowReportTab">
+                    Báo cáo doanh thu
+                </button>
+            </li>
+        </ul>
+
+        @if (activeTab == "orders")
+        {
+            <!-- Orders Management Section -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Quản lý đơn hàng</h4>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @successMessage
+                            <button type="button" class="btn-close" @onclick="() => successMessage = null"></button>
+                        </div>
+                    }
+
+                    @if (isLoading)
+                    {
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-success" role="status">
+                                <span class="visually-hidden">Đang tải...</span>
+                            </div>
+                            <p class="mt-2">Đang tải danh sách đơn hàng...</p>
+                        </div>
+                    }
+                    else if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            @errorMessage
+                        </div>
+                    }
+                    else if (orders == null || !orders.Any())
+                    {
+                        <div class="text-center py-5">
+                            <h5 class="mt-3">Chưa có đơn hàng nào</h5>
+                            <p class="text-muted">Hệ thống chưa có đơn hàng nào để quản lý.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Summary Stats -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card text-white bg-primary">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Tổng đơn hàng</h6>
+                                        <h4 class="mb-0">@orders.Count</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-white bg-warning">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Chờ xác nhận</h6>
+                                        <h4 class="mb-0">@orders.Count(o => o.OrderStatusId == 1)</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card text-white bg-info">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Đang giao hàng</h6>
+                                        <h4 class="mb-0">@orders.Count(o => o.OrderStatusId == 2)</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Second Row Stats -->
+                        <div class="row mb-4">
+                            <div class="col-md-4 offset-md-4">
+                                <div class="card text-white bg-success">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Đã giao hàng</h6>
+                                        <h4 class="mb-0">@orders.Count(o => o.OrderStatusId == 3)</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filter Controls -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <select class="form-select" @bind="selectedStatus" @bind:event="onchange">
+                                    <option value="0">Tất cả trạng thái</option>
+                                    <option value="1">Chờ xác nhận</option>
+                                    <option value="2">Đang giao hàng</option>
+                                    <option value="3">Đã giao hàng</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" placeholder="Tìm kiếm theo email khách hàng..."
+                                       @bind="searchTerm" @bind:event="oninput" />
+                            </div>
+                        </div>
+
+                        <!-- Orders Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Mã đơn</th>
+                                        <th scope="col">Khách hàng</th>
+                                        <th scope="col">Ngày đặt</th>
+                                        <th scope="col" class="text-end">Tổng tiền</th>
+                                        <th scope="col" class="text-center">Trạng thái</th>
+                                        <th scope="col" class="text-center">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in filteredOrders.Take(50))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>#@order.OrderId</strong>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong>@(order.MemberEmail ?? "Unknown")</strong>
+                                                    <br>
+                                                    <small class="text-muted">ID: @order.MemberId</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                                            </td>
+                                            <td class="text-end">
+                                                <strong class="text-success">@order.Freight.ToString("N0") ₫</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge @GetStatusBadgeClass(order.OrderStatusId)">
+                                                    @GetOrderStatusText(order.OrderStatusId)
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (expandedOrderId == order.OrderId)
+                                                {
+                                                    <div class="d-flex flex-column gap-1">
+                                                        <button class="btn btn-sm btn-secondary" @onclick="CollapseStatusUpdate">
+                                                            Đóng
+                                                        </button>
+                                                        @if (order.OrderStatusId != 1)
+                                                        {
+                                                            <button class="btn btn-sm btn-warning" @onclick="() => UpdateOrderStatus(order.OrderId, 1)">
+                                                                Chờ xác nhận
+                                                            </button>
+                                                        }
+                                                        @if (order.OrderStatusId != 2)
+                                                        {
+                                                            <button class="btn btn-sm btn-info" @onclick="() => UpdateOrderStatus(order.OrderId, 2)">
+                                                                Đang giao hàng
+                                                            </button>
+                                                        }
+                                                        @if (order.OrderStatusId != 3)
+                                                        {
+                                                            <button class="btn btn-sm btn-success" @onclick="() => UpdateOrderStatus(order.OrderId, 3)">
+                                                                Đã giao hàng
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="d-flex gap-1 justify-content-center">
+                                                        <a href="/order-detail/@order.OrderId" class="btn btn-sm btn-outline-info">
+                                                            Xem
+                                                        </a>
+                                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => ExpandStatusUpdate(order.OrderId)">
+                                                            Cập nhật
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if (filteredOrders.Count > 50)
+                        {
+                            <div class="alert alert-info mt-3">
+                                Hiển thị 50 đơn hàng đầu tiên trong tổng số @filteredOrders.Count đơn hàng phù hợp.
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        else if (activeTab == "report")
+        {
+            <!-- Sales Report Section -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Báo cáo doanh thu</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Date Range Selection -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Từ ngày:</label>
+                            <input type="date" class="form-control" @bind="startDate" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Đến ngày:</label>
+                            <input type="date" class="form-control" @bind="endDate" />
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-primary" @onclick="LoadSalesReport" disabled="@isLoadingReport">
+                                @if (isLoadingReport)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                }
+                                Tạo báo cáo
+                            </button>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(reportErrorMessage))
+                    {
+                        <div class="alert alert-danger">
+                            @reportErrorMessage
+                        </div>
+                    }
+
+                    @if (salesReport != null)
+                    {
+                        <!-- Summary Cards -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="card text-white bg-info">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Tổng đơn hàng</h6>
+                                        <h4 class="mb-0">@salesReport.TotalOrders</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-success">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Doanh thu</h6>
+                                        <h4 class="mb-0">@salesReport.TotalSales.ToString("N0") ₫</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-warning">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Phí vận chuyển</h6>
+                                        <h4 class="mb-0">@salesReport.TotalFreight.ToString("N0") ₫</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-white bg-primary">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Tổng cộng</h6>
+                                        <h4 class="mb-0">@salesReport.GrandTotal.ToString("N0") ₫</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Daily Sales Table -->
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th scope="col">Ngày</th>
+                                        <th scope="col" class="text-center">Số đơn hàng</th>
+                                        <th scope="col" class="text-end">Doanh thu</th>
+                                        <th scope="col" class="text-end">Phí vận chuyển</th>
+                                        <th scope="col" class="text-end">Tổng cộng</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var dailySale in salesReport.DailySales)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@dailySale.OrderDate.ToString("dd/MM/yyyy")</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-secondary">@dailySale.TotalOrders</span>
+                                            </td>
+                                            <td class="text-end">
+                                                @dailySale.TotalSales.ToString("N0") ₫
+                                            </td>
+                                            <td class="text-end">
+                                                @dailySale.TotalFreight.ToString("N0") ₫
+                                            </td>
+                                            <td class="text-end">
+                                                <strong class="text-success">@dailySale.GrandTotal.ToString("N0") ₫</strong>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        @if (!salesReport.DailySales.Any())
+                        {
+                            <div class="text-center py-4">
+                                <h5 class="text-muted">Không có dữ liệu</h5>
+                                <p class="text-muted">Không có đơn hàng nào trong khoảng thời gian đã chọn.</p>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</AdminOnly>
+
+@code {
+    // Orders Management Variables
+    private List<OrderDTO> orders = new();
+    private List<OrderDTO> filteredOrders = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string? successMessage;
+    private int selectedStatus = 0;
+    private string searchTerm = string.Empty;
+    private int? expandedOrderId = null;
+
+    // Sales Report Variables
+    private string activeTab = "orders";
+    private DateTime startDate = DateTime.Today.AddDays(-30);
+    private DateTime endDate = DateTime.Today;
+    private SalesReportSummaryDTO? salesReport;
+    private bool isLoadingReport = false;
+    private string? reportErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        StateHasChanged();
+    }
+
+    private void ShowOrdersTab()
+    {
+        activeTab = "orders";
+        StateHasChanged();
+    }
+
+    private void ShowReportTab()
+    {
+        activeTab = "report";
+        StateHasChanged();
+    }
+
+    private async Task LoadOrders()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            orders = await OrderService.GetAllOrdersAsync();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi tải danh sách đơn hàng: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadSalesReport()
+    {
+        try
+        {
+            isLoadingReport = true;
+            reportErrorMessage = null;
+
+            if (startDate > endDate)
+            {
+                reportErrorMessage = "Ngày bắt đầu không thể lớn hơn ngày kết thúc";
+                return;
+            }
+
+            salesReport = await OrderService.GetSalesReportAsync(startDate, endDate);
+        }
+        catch (Exception ex)
+        {
+            reportErrorMessage = $"Lỗi khi tải báo cáo: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingReport = false;
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        var query = orders.AsQueryable();
+
+        if (selectedStatus > 0)
+        {
+            query = query.Where(o => o.OrderStatusId == selectedStatus);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(o => o.MemberEmail != null && 
+                                   o.MemberEmail.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        }
+
+        filteredOrders = query.OrderByDescending(o => o.OrderDate).ToList();
+        StateHasChanged();
+    }
+
+    private void ExpandStatusUpdate(int orderId)
+    {
+        expandedOrderId = orderId;
+    }
+
+    private void CollapseStatusUpdate()
+    {
+        expandedOrderId = null;
+    }
+
+    private async Task UpdateOrderStatus(int orderId, int newStatusId)
+    {
+        try
+        {
+            var success = await OrderService.UpdateOrderStatusAsync(orderId, newStatusId);
+            if (success)
+            {
+                var order = orders.FirstOrDefault(o => o.OrderId == orderId);
+                if (order != null)
+                {
+                    order.OrderStatusId = newStatusId;
+                    successMessage = $"Đã cập nhật trạng thái đơn hàng #{orderId} thành: {GetOrderStatusText(newStatusId)}";
+                    ApplyFilters();
+                    expandedOrderId = null;
+                }
+            }
+            else
+            {
+                errorMessage = "Không thể cập nhật trạng thái đơn hàng";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi cập nhật trạng thái: {ex.Message}";
+        }
+    }
+
+    private string GetOrderStatusText(int statusId)
+    {
+        return statusId switch
+        {
+            1 => "Chờ xác nhận",
+            2 => "Đang giao hàng",
+            3 => "Đã giao hàng",
+            _ => "Không xác định"
+        };
+    }
+
+    private string GetStatusBadgeClass(int statusId)
+    {
+        return statusId switch
+        {
+            1 => "bg-warning",
+            2 => "bg-info",
+            3 => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+}
